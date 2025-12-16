@@ -1,0 +1,29 @@
+/* BottariLogo2 애니메이션 */
+
+/* 왼쪽 매듭(귀) */
+.bottari-logo2-cls-11 {
+  transform-origin: 30px 21px;
+  transform-box: fill-box;
+  animation: flutter-ribbon-left 2.5s ease-in-out infinite;
+}
+
+/* 오른쪽 매듭(귀) */
+.bottari-logo2-cls-9 {
+  transform-origin: 36px 21px;
+  transform-box: fill-box;
+  animation: flutter-ribbon-right 2.8s ease-in-out infinite;
+}
+
+/* 중앙 매듭 */
+.bottari-logo2-cls-10 {
+  transform-origin: 33px 23px;
+  transform-box: fill-box;
+  animation: flutter-ribbon-center 2s ease-in-out infinite;
+}
+
+/* 눈 깜빡임 */
+.bottari-logo2-cls-7 {
+  transform-box: fill-box;
+  transform-origin: center center;
+  animation: blink 3s ease-in-out infinite;
+}
