@@ -1,0 +1,88 @@
+/* ------------------------ */
+/* ========= info ========= */
+/* ------------------------ */
+.driver-info {
+  display: flex;
+  justify-content: space-between;
+  padding: 30px;
+  background-color: var(--bottari-skyblue);
+}
+.info-left {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+.info-right {
+  display: flex;
+  flex-direction: column;
+  gap: 30px;
+}
+
+/* ------------------------ */
+/* ======= 토글 버튼 ======= */
+/* ------------------------ */
+.toggle {
+  width: 96px;
+  height: 36px;
+  border-radius: 36px;
+  border: none;
+  cursor: pointer;
+
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* ===== 공통 ===== */
+.toggle .label {
+  position: absolute;
+  width: auto;
+  font-size: 14px;
+  font-weight: 500;
+  pointer-events: none;
+  transition: transform 0.25s ease;
+}
+
+/* ===== 휴무 ===== */
+.toggle.off .label {
+  right: 12px;
+  color: #fff;
+  transform: translateX(2px);
+}
+.toggle.off {
+  background-color: #bdbdbd; /* 회색 */
+}
+
+/* ===== 근무중 ===== */
+.toggle.on .label {
+  left: 12px;
+  color: #fff;
+  transform: translateX(-2px);
+}
+.toggle.on {
+  background-color: #2e7d32; /* 초록 */
+}
+
+/* ===== 슬라이드 노브 ===== */
+.toggle .knob {
+  width: 28px;
+  height: 28px;
+  background: #fff;
+  border-radius: 50%;
+
+  position: absolute;
+  left: 4px;
+
+  transition: transform 0.25s ease;
+}
+
+.toggle.on .knob {
+  transform: translateX(59px);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .toggle,
+  .toggle .knob {
+    transition: none;
+  }
+}
