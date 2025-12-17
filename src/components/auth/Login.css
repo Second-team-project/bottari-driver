@@ -1,0 +1,13 @@
+.login-info-container {
+  padding: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.login-info-greeting {
+  font-size: 26px;
+  font-weight: 600;
+}
+.login-info-date {
+  font-size: 14px;
+}

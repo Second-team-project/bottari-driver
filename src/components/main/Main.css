@@ -5,29 +5,53 @@
   display: flex;
   justify-content: space-between;
   padding: 30px;
-  background-color: var(--bottari-skyblue);
+  background-color: var(--bottari-blue);
 }
 .info-left {
   display: flex;
   flex-direction: column;
   gap: 30px;
+  color: #fff;
+}
+.info-left-top {
+  font-size: 22px;
+  font-weight: 600;
+  line-height: 1.3em;
+}
+.info-left-bottom {
+  font-size: 14px;
 }
 .info-right {
   display: flex;
   flex-direction: column;
-  gap: 30px;
+  justify-content: space-between;
+  align-items: end;
+  gap: 25px;
 }
+
+/* ===== 정보 수정 버튼 ===== */
+.info-modify {
+  position: relative;
+  top: 12px;
+  padding: 4px 6px;
+  width: 100px;
+  border-radius: 10px;
+  border: 1px solid #fff;
+  color: #fff;
+  background: none;
+}
+
 
 /* ------------------------ */
 /* ======= 토글 버튼 ======= */
 /* ------------------------ */
 .toggle {
-  width: 96px;
-  height: 36px;
+  width: 88px;
+  height: 33px;
   border-radius: 36px;
-  border: none;
+  border: 1px solid #fff;
   cursor: pointer;
-
+  
   position: relative;
   display: flex;
   align-items: center;
@@ -38,14 +62,14 @@
   position: absolute;
   width: auto;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   pointer-events: none;
   transition: transform 0.25s ease;
 }
 
 /* ===== 휴무 ===== */
 .toggle.off .label {
-  right: 12px;
+  right: 15px;
   color: #fff;
   transform: translateX(2px);
 }
@@ -55,7 +79,7 @@
 
 /* ===== 근무중 ===== */
 .toggle.on .label {
-  left: 12px;
+  left: 15px;
   color: #fff;
   transform: translateX(-2px);
 }
@@ -65,19 +89,19 @@
 
 /* ===== 슬라이드 노브 ===== */
 .toggle .knob {
-  width: 28px;
-  height: 28px;
+  width: 25px;
+  height: 25px;
   background: #fff;
   border-radius: 50%;
 
   position: absolute;
-  left: 4px;
+  left: 3px;
 
   transition: transform 0.25s ease;
 }
 
 .toggle.on .knob {
-  transform: translateX(59px);
+  transform: translateX(55px);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -85,4 +109,151 @@
   .toggle .knob {
     transition: none;
   }
+}
+
+
+/* ------------------------ */
+/* ======= 대시보드 ======== */
+/* ------------------------ */
+.driver-dashboard {
+  position: relative;
+  top: -1px;
+  padding: 10px;
+  background-color: var(--bottari-blue);
+}
+.white-box {
+  padding: 20px;
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  border-radius: 10px;
+  background-color: #fff;
+}
+.dashboard-line {
+  width: 1px;
+  background-color: #000;
+}
+.dashboard-left, .dashboard-right {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+
+/* ------------------------ */
+/* ======= 예약 리스트 ====== */
+/* ------------------------ */
+.reservation-list {
+  padding: 15px;
+}
+.reservation-header {
+  margin-bottom: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+.list-title {
+  font-size: 18px;
+  font-weight: 500;
+}
+.list-container {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+
+/* ===== 카드 정렬 드랍다운 ===== */
+.sort-dropdown-container {
+  position: relative;
+}
+.sort-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 85px;
+  padding: 1px 5px 1px 8px;
+  border: 1px solid #888888;
+  border-radius: 5px;
+  background: none;
+  cursor: pointer;
+}
+.sort-dropdown-arrow {
+  transform-origin: center center;
+  transition: transform 0.2s ease;  
+}
+.sort-dropdown-arrow.sort-open {
+  transform: rotate(180deg);
+}
+.sort-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  border: 1px solid #ccc;
+  background-color: #fff;
+  z-index: 2;
+  list-style: none;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+.sort-dropdown-item {
+  padding: 1px 5px;
+  cursor: pointer;
+}
+.sort-dropdown-item:hover {
+  background-color: #ccc;
+}
+
+/* ===== 카드 ===== */
+.list-card {
+  padding: 15px;
+  position: relative;
+  border-radius: 20px;
+  border: 1px solid #000;
+}
+
+/* ===== 상태 버튼 ===== */
+.reservation-state-btn {
+  width: 80px;
+  padding: 3px 5px;
+  position: absolute;
+  right: 15px;
+  border-radius: 20px;
+  background: none;
+  font-weight: 600;
+}
+.btn-blue {
+  color: var(--bottari-blue);
+  border: 2px solid var(--bottari-blue);
+}
+.btn-pink {
+  color: var(--bottari-deeppink);
+  border: 2px solid var(--bottari-deeppink);
+}
+.btn-gray {
+  color: #888888;
+  border: 2px solid #888888;
+}
+
+/* ===== 카드 구성 ===== */
+.reservation-flow {
+  margin-top: 45px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.flex-between {
+  display: flex;
+  justify-content: space-between;
+}
+.reservation-place {
+  display: flex;
+  gap: 10px;
+}
+.reservation-label {
+  width: 58px;
+  padding: 2px;
+  color: #888888;
+  text-align: center;
+  border: 1px solid #888888;
+  border-radius: 20px;
+  font-size: 13px;
 }
