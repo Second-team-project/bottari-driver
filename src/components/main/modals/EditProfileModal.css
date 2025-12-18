@@ -1,0 +1,65 @@
+/* ------------------------ */
+/* ===== 모달 전체 설정 ===== */
+/* ------------------------ */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+.modal-container {
+  width: 320px;
+  padding: 25px;
+  background-color: #fff;
+  border-radius: 10px;
+}
+
+
+/* ------------------------ */
+/* === 개인정보 편집 모달 === */
+/* ------------------------ */
+.edit-modal-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+.edit-modal-title, .edit-form-container {
+  margin-bottom: 25px;
+}
+.edit-form-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.edit-label-input-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+.edit-label-input-container input {
+  width: 180px;
+  height: 35px;
+  background-color: #F3F3F3;
+  border: none;
+}
+.edit-helper-text {
+  margin-top: 5px;
+  font-size: 9px;
+  color: #888888;
+}
+.edit-btn-container {
+  margin-top: 15px;
+  display: flex;
+  justify-content: space-between;
+}
+.edit-btn-container button {
+  width: 130px;
+  height: 30px;
+  color: #fff;
+  background-color: var(--bottari-blue);
+  border: none;
+  border-radius: 5px;
+}

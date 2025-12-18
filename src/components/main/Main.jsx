@@ -1,10 +1,12 @@
 import './Main.css';
 import { useEffect, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
+import EditProfileModal from './modals/EditProfileModal.jsx';
 
 export default function Main() {
   const filterRef = useRef(null);
 
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [isWorking, setIsWorking] = useState(false); // 근무 중, 휴무 버튼
   const [sortBtnValue, setSortBtnValue] = useState('정렬 기준'); // 버튼 value
   const [filterDropboxOpen, setFilterDropboxOpen] = useState(false); // 필터 드랍박스가 열렸는지 안 열렸는지
@@ -53,7 +55,21 @@ export default function Main() {
           <p className='info-left-bottom'>오늘은 2025-12-12 입니다.</p>
         </div>
         <div className='info-right'>
-          <button className='info-modify'>정보 수정 하기</button>
+          {/* 개인정보 수정 버튼 */}
+          <button type='button'
+            className='info-modify'
+            onClick={() => setEditProfileOpen(true)}
+          >
+            정보 수정 하기
+          </button>
+
+          {/* 개인정보 수정 모달 */}
+          <EditProfileModal
+            open={editProfileOpen}
+            onClose={() => setEditProfileOpen(false)}
+          />
+
+          {/* 근무 중, 휴무 버튼 */}
           <button
             type="button"
             className={`toggle ${isWorking ? "on" : "off"}`}
