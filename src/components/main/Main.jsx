@@ -2,14 +2,40 @@ import './Main.css';
 import { useEffect, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import EditProfileModal from './modals/EditProfileModal.jsx';
+import WorkStatusConfirmModal from './modals/WorkStatusConfirmModal.jsx';
 
 export default function Main() {
   const filterRef = useRef(null);
 
-  const [editProfileOpen, setEditProfileOpen] = useState(false);
-  const [isWorking, setIsWorking] = useState(false); // 근무 중, 휴무 버튼
-  const [sortBtnValue, setSortBtnValue] = useState('정렬 기준'); // 버튼 value
-  const [filterDropboxOpen, setFilterDropboxOpen] = useState(false); // 필터 드랍박스가 열렸는지 안 열렸는지
+  // 개인정보 수정 모달
+  const [editProfileOpen, setEditProfileOpen] = useState(false); // 모달 표시 여부
+
+  // 근무중, 휴무 토글 버튼 모달
+  const [isWorking, setIsWorking] = useState(false); // 근무 중, 휴무 버튼 실제 상태
+  const [workPendingStatus, setWorkPendingStatus] = useState(null); // 바꾸려는 상태
+  const [workStatusModalOpen, setWorkStatusModalOpen] = useState(false); // 모달 표시 여부
+
+  // 정렬기준 선택 드랍박스
+  const [sortBtnValue, setSortBtnValue] = useState('정렬 기준'); // 정렬 기준 버튼 value
+  const [filterDropboxOpen, setFilterDropboxOpen] = useState(false); // 드랍 박스 on/off
+
+  // 근무 중, 휴무 토글 상태 변경 요청
+  const handleToggleRequest = () => {
+    setWorkPendingStatus(!isWorking);
+    setWorkStatusModalOpen(true);
+  };
+
+  // 확인 동작
+  const handleConfirm = () => {
+    setIsWorking(workPendingStatus);
+    setWorkStatusModalOpen(false);
+  };
+
+  // 취소 동작
+  const handleCancel = () => {
+    setWorkPendingStatus(null);
+    setWorkStatusModalOpen(false);
+  };
 
   // 정렬 기준 필터 리스트
   const sortOptions = [
@@ -17,12 +43,7 @@ export default function Main() {
     { value: 'IN_PROGRESS', label: '운송 중' },
     { value: 'COMPLETED', label: '완료' },
   ];
-
-  // 정렬 드랍다운 열기 닫기
-  const handleDropdownClick = () => {
-    setIsWorking(prev => !prev);
-  };
-
+  
   // 정렬 드랍다운 리스트 값 클릭 시 버튼 값 바꾸고 드랍다운 닫기
   function handleSortChange(value) {
     setSortBtnValue(value);
@@ -75,13 +96,21 @@ export default function Main() {
             className={`toggle ${isWorking ? "on" : "off"}`}
             aria-pressed={isWorking}
             aria-label={isWorking ? "근무중" : "휴무"}
-            onClick={handleDropdownClick}
+            onClick={handleToggleRequest}
           >
             <span className="knob" />
             <span className="label">
               {isWorking ? "근무중" : "휴무"}
             </span>
           </button>
+
+          {/* 근무 중, 휴무 토글 확인 모달 */}
+          <WorkStatusConfirmModal
+            isOpen={workStatusModalOpen}
+            nextStatus={workPendingStatus}
+            onConfirm={handleConfirm}
+            onCancel={handleCancel}
+          />
         </div>
       </div>
 

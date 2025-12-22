@@ -30,6 +30,9 @@
   width: 200px;
   height: 35px;
 }
+.login-input-id::placeholder, .login-input-password::placeholder {
+  color: var(--bottari-placeholder);
+}
 .login-btn {
   margin-top: 20px;
   width: 250px;

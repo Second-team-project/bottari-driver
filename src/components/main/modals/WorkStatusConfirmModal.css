@@ -1,0 +1,43 @@
+/* ------------------------ */
+/* ===== 모달 전체 설정 ===== */
+/* ------------------------ */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1;
+}
+.modal-container {
+  width: 320px;
+  padding: 25px;
+  background-color: #fff;
+  border-radius: 10px;
+}
+
+/* ------------------------ */
+/* === 근무 상태 변경 모달 === */
+/* ------------------------ */
+.work-status-modal-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* ------------------------ */
+/* ========= 버튼 ========= */
+/* ------------------------ */
+.work-status-btn-container {
+  margin-top: 30px;
+  display: flex;
+  justify-content: space-between;
+}
+.work-status-btn-container button {
+  width: 130px;
+  height: 30px;
+  color: #fff;
+  background-color: var(--bottari-blue);
+  border: none;
+  border-radius: 5px;
+}
