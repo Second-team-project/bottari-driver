@@ -42,13 +42,14 @@
 .edit-label-input-container input {
   width: 180px;
   height: 35px;
-  background-color: #F3F3F3;
+  background-color: var(--bottari-input);
   border: none;
+  border-radius: 5px;
 }
 .edit-helper-text {
   margin-top: 5px;
   font-size: 9px;
-  color: #888888;
+  color: var(--bottari-placeholder);
 }
 .edit-btn-container {
   margin-top: 15px;
