@@ -3,9 +3,14 @@ import { useEffect, useRef, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
 import EditProfileModal from './modals/EditProfileModal.jsx';
 import WorkStatusConfirmModal from './modals/WorkStatusConfirmModal.jsx';
+import dayjs from 'dayjs';
+import { useSelector } from 'react-redux';
 
 export default function Main() {
   const filterRef = useRef(null);
+
+  // driver state
+  const { driver } = useSelector(state => state.auth);
 
   // 개인정보 수정 모달
   const [editProfileOpen, setEditProfileOpen] = useState(false); // 모달 표시 여부
@@ -18,6 +23,9 @@ export default function Main() {
   // 정렬기준 선택 드랍박스
   const [sortBtnValue, setSortBtnValue] = useState('정렬 기준'); // 정렬 기준 버튼 value
   const [filterDropboxOpen, setFilterDropboxOpen] = useState(false); // 드랍 박스 on/off
+
+  // 오늘 날짜 포멧
+  const today = dayjs().format('YYYY-MM-DD');
 
   // 근무 중, 휴무 토글 상태 변경 요청
   const handleToggleRequest = () => {
@@ -71,9 +79,9 @@ export default function Main() {
         <div className='info-left'>
           <div className='info-left-top'>
             <p>안녕하세요.</p>
-            <p>보따리 기사님</p>
+            <p>{`${driver.driverName} 기사님`}</p>
           </div>
-          <p className='info-left-bottom'>오늘은 2025-12-12 입니다.</p>
+          <p className='info-left-bottom'>{`오늘은 ${today} 입니다.`}</p>
         </div>
         <div className='info-right'>
           {/* 개인정보 수정 버튼 */}
