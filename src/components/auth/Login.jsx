@@ -48,7 +48,6 @@ export default function Login() {
 
   return (
     <>
-      <Toaster position="top-center" />
       {/* info */}
       <div className='login-info-container'>
         <p className='login-info-greeting'>안녕하세요. 기사님</p>

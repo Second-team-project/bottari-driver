@@ -4,41 +4,59 @@ import { ChevronDown } from 'lucide-react';
 import EditProfileModal from './modals/EditProfileModal.jsx';
 import WorkStatusConfirmModal from './modals/WorkStatusConfirmModal.jsx';
 import dayjs from 'dayjs';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { toast, Toaster } from 'sonner';
+import TransportStatusConfirmModal from './modals/TransportStatusConfirmModal.jsx';
+import { statusThunk, toggleThunk } from '../../store/thunks/attendanceThunk.js';
 
 export default function Main() {
+  const dispatch = useDispatch();
+
   const filterRef = useRef(null);
 
-  // driver state
-  const { driver } = useSelector(state => state.auth);
+  // 기사 개인정보, 현재 근무 상태
+  const { driver, isAttendanceState } = useSelector(state => state.auth);
 
   // 개인정보 수정 모달
   const [editProfileOpen, setEditProfileOpen] = useState(false); // 모달 표시 여부
-
+  
   // 근무중, 휴무 토글 버튼 모달
-  const [isWorking, setIsWorking] = useState(false); // 근무 중, 휴무 버튼 실제 상태
   const [workPendingStatus, setWorkPendingStatus] = useState(null); // 바꾸려는 상태
   const [workStatusModalOpen, setWorkStatusModalOpen] = useState(false); // 모달 표시 여부
-
+  
   // 정렬기준 선택 드랍박스
   const [sortBtnValue, setSortBtnValue] = useState('정렬 기준'); // 정렬 기준 버튼 value
   const [filterDropboxOpen, setFilterDropboxOpen] = useState(false); // 드랍 박스 on/off
+  
+  // 배송 상태 변경 모달
+  const [isState, setIsState] = useState(false); // 실제 배송 상태
+  const [transportPendingStatus, setTransportPendingStatus] = useState(null); // 바꾸려는 상태
+  const [transportStateOpen, setTransportStateOpen] = useState(false); // 모달 표시 여부
 
   // 오늘 날짜 포멧
   const today = dayjs().format('YYYY-MM-DD');
 
   // 근무 중, 휴무 토글 상태 변경 요청
   const handleToggleRequest = () => {
-    setWorkPendingStatus(!isWorking);
+    const nextState = isAttendanceState ? 'CLOCKED_OUT' : 'CLOCKED_IN';
+    setWorkPendingStatus(nextState);
     setWorkStatusModalOpen(true);
   };
-
   // 확인 동작
-  const handleConfirm = () => {
-    setIsWorking(workPendingStatus);
-    setWorkStatusModalOpen(false);
+  const handleConfirm = async () => {
+    try {
+      const resultAction = await dispatch(toggleThunk({ nextState: workPendingStatus }));
+      
+      if (toggleThunk.fulfilled.match(resultAction)) {
+        toast.success(workPendingStatus === 'CLOCKED_IN' ? "출근되었습니다." : "퇴근되었습니다.");
+        setWorkStatusModalOpen(false);
+      } else {
+        toast.error(resultAction.payload?.data.msg || "상태 변경에 실패했습니다.");
+      }
+    } catch (error) {
+      toast.error("시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+    }
   };
-
   // 취소 동작
   const handleCancel = () => {
     setWorkPendingStatus(null);
@@ -59,6 +77,8 @@ export default function Main() {
   }
 
   useEffect(() => {
+    dispatch(statusThunk());
+
     // 드랍다운 외부 클릭 시 드랍다운 닫기
     function handleSearchClickOutside(event) {
       const clickOutsideOptions = filterRef.current && !filterRef.current.contains(event.target)
@@ -101,14 +121,14 @@ export default function Main() {
           {/* 근무 중, 휴무 버튼 */}
           <button
             type="button"
-            className={`toggle ${isWorking ? "on" : "off"}`}
-            aria-pressed={isWorking}
-            aria-label={isWorking ? "근무중" : "휴무"}
+            className={`toggle ${isAttendanceState ? "on" : "off"}`}
+            aria-pressed={isAttendanceState}
+            aria-label={isAttendanceState ? "근무중" : "휴무"}
             onClick={handleToggleRequest}
           >
             <span className="knob" />
             <span className="label">
-              {isWorking ? "근무중" : "휴무"}
+              {isAttendanceState ? "근무중" : "휴무"}
             </span>
           </button>
 
@@ -166,7 +186,21 @@ export default function Main() {
         </div>
         <div className='list-container'>
           <div className='list-card'>
-            <button type='button' className='reservation-state-btn btn-blue'>픽업 전</button>
+            {/* 배송 상태 변경 버튼 */}
+            <button type='button'
+              className='reservation-state-btn btn-blue'
+              onClick={() => setTransportStateOpen(true)}
+            >
+              픽업 전
+            </button>
+            
+            {/* 배송 상태 변경 모달 */}
+            {/* <TransportStatusConfirmModal
+              isOpen={transportStateOpen}
+              onCancel={() => setTransportStateOpen(false)}
+            /> */}
+
+            {/* 예약 정보 */}
             <div className='reservation-flow'>
               <div className='flex-between'>
                 <div className='reservation-place'>

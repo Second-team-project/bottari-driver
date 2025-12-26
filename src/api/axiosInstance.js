@@ -2,9 +2,12 @@ import axios from 'axios';
 import { jwtDecode } from 'jwt-decode';
 import dayjs from 'dayjs';
 import { reissueThunk } from '../store/thunks/authThunk.js';
+import { clearAuth } from '../store/slices/authSlice.js';
 
 // store 저장용 변수
 let store = null;
+// 재발급 진행 상태를 담을 변수
+let reissuePromise = null;
 
 // store 주입용 함수
 export function injectStoreInAxios(_store) {
@@ -23,29 +26,50 @@ const axiosInstance = axios.create({
 });
 
 axiosInstance.interceptors.request.use(async (config) => {
-  const noRetry = /^\/api\/auth\/reissue$/; // 리트라이 제외 URL 설정
-  let { accessToken } = store.getState().auth; // auth state 획득
+  const skipUrls = ['/api/driver/auth/reissue', '/api/driver/auth/login'];
+  if (skipUrls.some(url => config.url.includes(url))) return config;
+
+  let { accessToken } = store.getState().auth;
 
   try {
-    //액세스 토큰 있음 && 리트라이 제외 URL 아님
-    if(accessToken && !noRetry.test(config.url)) {
-      // 엑세스 토큰 만료 확인
+    let needsReissue = false;
+
+    if (!accessToken) {
+      needsReissue = true;
+    } else {
       const claims = jwtDecode(accessToken);
       const now = dayjs().unix();
       const expTime = dayjs.unix(claims.exp).add(-5, 'minute').unix();
-      
-      if(now >= expTime) {
-        const response = await store.dispatch(reissueThunk()).unwrap();
+      if (now >= expTime) needsReissue = true;
+    }
 
+    if (needsReissue) {
+      try {
+        // 이미 진행 중인 재발급이 있다면 그 Promise를 기다립니다.
+        if (!reissuePromise) {
+          reissuePromise = store.dispatch(reissueThunk()).unwrap()
+            .finally(() => {
+              reissuePromise = null; // 완료 후 초기화
+            });
+        }
+        
+        const response = await reissuePromise;
         accessToken = response.data.accessToken;
+      } catch (reissueError) {
+        store.dispatch(clearAuth());
+        if (!window.location.pathname.includes('/login')) {
+          window.location.href = '/login';
+        }
+        return Promise.reject(reissueError);
       }
-  
+    }
+
+    if (accessToken) {
       config.headers["Authorization"] = `Bearer ${accessToken}`;
     }
-  
+    
     return config;
   } catch(error) {
-    
     return Promise.reject(error);
   }
 });

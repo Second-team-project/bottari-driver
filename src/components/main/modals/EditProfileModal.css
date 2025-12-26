@@ -39,9 +39,10 @@
   align-items: center;
   gap: 10px;
 }
-.edit-label-input-container input {
+.edit-label-input-container input, .edit-phone-input {
   width: 180px;
   height: 35px;
+  padding: 0 10px;
   background-color: var(--bottari-input);
   border: none;
   border-radius: 5px;
