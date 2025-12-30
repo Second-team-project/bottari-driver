@@ -1,13 +1,14 @@
 import './Main.css';
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import EditProfileModal from './modals/EditProfileModal.jsx';
 import WorkStatusConfirmModal from './modals/WorkStatusConfirmModal.jsx';
 import dayjs from 'dayjs';
 import { useDispatch, useSelector } from 'react-redux';
-import { toast, Toaster } from 'sonner';
+import { toast } from 'sonner';
 import TransportStatusConfirmModal from './modals/TransportStatusConfirmModal.jsx';
 import { statusThunk, toggleThunk } from '../../store/thunks/attendanceThunk.js';
+import { assignedThunk } from '../../store/thunks/deliveriesThunk.js';
 
 export default function Main() {
   const dispatch = useDispatch();
@@ -16,6 +17,8 @@ export default function Main() {
 
   // 기사 개인정보, 현재 근무 상태
   const { driver, isAttendanceState } = useSelector(state => state.auth);
+  // 예약 정보
+  const { list } = useSelector(state => state.deliveries);
 
   // 개인정보 수정 모달
   const [editProfileOpen, setEditProfileOpen] = useState(false); // 모달 표시 여부
@@ -27,6 +30,9 @@ export default function Main() {
   // 정렬기준 선택 드랍박스
   const [sortBtnValue, setSortBtnValue] = useState('정렬 기준'); // 정렬 기준 버튼 value
   const [filterDropboxOpen, setFilterDropboxOpen] = useState(false); // 드랍 박스 on/off
+
+  // 아코디언 상태 관리 (열려있는 카드의 ID 저장)
+  const [expandedId, setExpandedId] = useState(null);
   
   // 배송 상태 변경 모달
   const [isState, setIsState] = useState(false); // 실제 배송 상태
@@ -61,6 +67,7 @@ export default function Main() {
   const handleCancel = () => {
     setWorkPendingStatus(null);
     setWorkStatusModalOpen(false);
+    setTransportStateOpen(false);
   };
 
   // 정렬 기준 필터 리스트
@@ -69,16 +76,45 @@ export default function Main() {
     { value: 'IN_PROGRESS', label: '운송 중' },
     { value: 'COMPLETED', label: '완료' },
   ];
-  
+
   // 정렬 드랍다운 리스트 값 클릭 시 버튼 값 바꾸고 드랍다운 닫기
   function handleSortChange(value) {
     setSortBtnValue(value);
     setFilterDropboxOpen(false);
   }
+  
+
+  // 배송 상태 변경 버튼 클릭
+  function handlereservationStateChange(e) {
+    if (e) e.stopPropagation();
+    setTransportStateOpen(true);
+  }
+
+  
+  // 아코디언 토글 함수
+  const toggleAccordion = (id) => {
+    setExpandedId(expandedId === id ? null : id);
+  };
+  
+  const stateMapping = {
+    RESERVED: { label: '픽업 전', className: 'btn-blue' },
+    IN_PROGRESS: { label: '운송 중', className: 'btn-pink' },
+    COMPLETED: { label: '완료', className: 'btn-gray' },
+  };
+
+  // 전화번호 포멧
+  const formatPhone = (val) => {
+    if (!val) return "";
+    // 숫자만 남기기 (혹시 모를 공백이나 특수문자 제거)
+    const s = val.replace(/\D/g, "");
+    // 010-1234-5678 또는 010-123-4567 대응
+    return s.replace(/(\d{3})(\d{3,4})(\d{4})/, "$1-$2-$3");
+  };
 
   useEffect(() => {
     dispatch(statusThunk());
-
+    dispatch(assignedThunk());
+    
     // 드랍다운 외부 클릭 시 드랍다운 닫기
     function handleSearchClickOutside(event) {
       const clickOutsideOptions = filterRef.current && !filterRef.current.contains(event.target)
@@ -88,10 +124,10 @@ export default function Main() {
       }
     }
     document.addEventListener("mousedown", handleSearchClickOutside);
-
+    
     return () => document.removeEventListener("mousedown", handleSearchClickOutside);
   }, [])
-
+  
   return (
     <>
      {/* 기사 개인정보 */}
@@ -184,168 +220,94 @@ export default function Main() {
             )}
           </div>
         </div>
+
+        {/* 배송 예약 리스트 */}
         <div className='list-container'>
-          <div className='list-card'>
-            {/* 배송 상태 변경 버튼 */}
-            <button type='button'
-              className='reservation-state-btn btn-blue'
-              onClick={() => setTransportStateOpen(true)}
-            >
-              픽업 전
-            </button>
-            
-            {/* 배송 상태 변경 모달 */}
-            {/* <TransportStatusConfirmModal
-              isOpen={transportStateOpen}
-              onCancel={() => setTransportStateOpen(false)}
-            /> */}
+          {list && list.map((item) => {
+            const isExpanded = expandedId === item.id;
+            const currentState = stateMapping[item.deliveryState] || stateMapping.RESERVED;
 
-            {/* 예약 정보 */}
-            <div className='reservation-flow'>
-              <div className='flex-between'>
-                <div className='reservation-place'>
-                  <p className='reservation-label'>출발지</p>
-                  <p>주소</p>
+            return (
+              // 상단 기본 정보 영역 (클릭 시 아코디언 토글)
+              <div key={item.id} className="list-card" onClick={() => toggleAccordion(item.id)}>
+                <div className="card-header-row">
+                  <button type='button'
+                    className={`reservation-state-btn ${currentState.className}`}
+                    onClick={handlereservationStateChange}
+                  >
+                    {currentState.label}
+                  </button>
                 </div>
-                <p className='reservation-time'>시간</p>
-              </div>
-              <div className='flex-between'>
-                <div className='reservation-place'>
-                  <p className='reservation-label'>도착지</p>
-                  <p>주소</p>
-                </div>
-                <p className='reservation-time'>시간</p>
-              </div>
-              <div className='flex-between'>
-                <p className='reservation-label'>짐</p>
-                <p>여행용 캐리어</p>
-              </div>
-            </div>
-          </div>
 
-          <div className='list-card'>
-            <button className='reservation-state-btn btn-pink'>운송 중</button>
-            <div className='reservation-flow'>
-              <div className='flex-between'>
-                <div className='reservation-place'>
-                  <p className='reservation-label'>출발지</p>
-                  <p>주소</p>
-                </div>
-                <p className='reservation-time'>시간</p>
-              </div>
-              <div className='flex-between'>
-                <div className='reservation-place'>
-                  <p className='reservation-label'>도착지</p>
-                  <p>주소</p>
-                </div>
-                <p className='reservation-time'>시간</p>
-              </div>
-              <div className='flex-between'>
-                <p className='reservation-label'>짐</p>
-                <p>여행용 캐리어</p>
-              </div>
-            </div>
-          </div>
+                <div className='reservation-flow'>
+                  {/* 출발지 */}
+                  <div className='flex-between'>
+                    <div className='reservation-place'>
+                      <p className='reservation-label'>출발지</p>
+                      <p className='addr-text'>{item.startAddr}</p>
+                    </div>
+                    <p className='reservation-time'>{item.pickupTime}</p>
+                  </div>
 
-          <div className='list-card'>
-            <button className='reservation-state-btn btn-gray'>완료</button>
-            <div className='reservation-flow'>
-              <div className='flex-between'>
-                <div className='reservation-place'>
-                  <p className='reservation-label'>출발지</p>
-                  <p>주소</p>
-                </div>
-                <p className='reservation-time'>시간</p>
-              </div>
-              <div className='flex-between'>
-                <div className='reservation-place'>
-                  <p className='reservation-label'>도착지</p>
-                  <p>주소</p>
-                </div>
-                <p className='reservation-time'>시간</p>
-              </div>
-              <div className='flex-between'>
-                <p className='reservation-label'>짐</p>
-                <p>여행용 캐리어</p>
-              </div>
-            </div>
-          </div>
+                  {/* 도착지 */}
+                  <div className='flex-between'>
+                    <div className='reservation-place'>
+                      <p className='reservation-label'>도착지</p>
+                      <p className='addr-text'>{item.endAddr}</p>
+                    </div>
+                    <p className='reservation-time'>{item.deliveryTime}</p>
+                  </div>
 
-          <div className='list-card'>
-            <button className='reservation-state-btn btn-blue'>픽업 전</button>
-            <div className='reservation-flow'>
-              <div className='flex-between'>
-                <div className='reservation-place'>
-                  <p className='reservation-label'>출발지</p>
-                  <p>주소</p>
-                </div>
-                <p className='reservation-time'>시간</p>
-              </div>
-              <div className='flex-between'>
-                <div className='reservation-place'>
-                  <p className='reservation-label'>도착지</p>
-                  <p>주소</p>
-                </div>
-                <p className='reservation-time'>시간</p>
-              </div>
-              <div className='flex-between'>
-                <p className='reservation-label'>짐</p>
-                <p>여행용 캐리어</p>
-              </div>
-            </div>
-          </div>
+                    {/* 짐 목록 (여러 개일 경우 줄바꿈) */}
+                    <div className='flex-between items-start'>
+                      <p className='detail-label'>짐</p>
+                      <div className='luggage-list'>
+                        {item.luggageList && item.luggageList.length > 0 ? (
+                          item.luggageList.map((lugText, idx) => (
+                            <p key={idx} className="luggage-item">{lugText}</p>
+                          ))
+                        ) : (
+                          <p className="luggage-item">짐 정보 없음</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="accordion-arrow-row">
+                    {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                  </div>
 
-          <div className='list-card'>
-            <button className='reservation-state-btn btn-blue'>픽업 전</button>
-            <div className='reservation-flow'>
-              <div className='flex-between'>
-                <div className='reservation-place'>
-                  <p className='reservation-label'>출발지</p>
-                  <p>주소</p>
-                </div>
-                <p className='reservation-time'>시간</p>
+                {/* 아코디언 상세 정보 영역 (예약자 성함, 전화번호, 요청사항) */}
+                {isExpanded && (
+                  <div className='accordion-detail'>
+                    <div className='detail-divider'></div>
+                    <div className='detail-content'>
+                      <div className='flex-between'>
+                        <p className='detail-label'>예약자</p>
+                        <p>{item.userName}</p>
+                      </div>
+                      <div className='flex-between'>
+                        <p className='detail-label'>전화번호</p>
+                        <p>{formatPhone(item.userPhone)}</p>
+                      </div>
+                      <div className='flex-between label-top'>
+                        <p className='detail-label'>요청사항</p>
+                        <p className='detail-value'>{item.request || '요청사항이 없습니다.'}</p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-              <div className='flex-between'>
-                <div className='reservation-place'>
-                  <p className='reservation-label'>도착지</p>
-                  <p>주소</p>
-                </div>
-                <p className='reservation-time'>시간</p>
-              </div>
-              <div className='flex-between'>
-                <p className='reservation-label'>짐</p>
-                <p>여행용 캐리어</p>
-              </div>
-            </div>
-          </div>
-
-          <div className='list-card'>
-            <button className='reservation-state-btn btn-blue'>픽업 전</button>
-            <div className='reservation-flow'>
-              <div className='flex-between'>
-                <div className='reservation-place'>
-                  <p className='reservation-label'>출발지</p>
-                  <p>주소</p>
-                </div>
-                <p className='reservation-time'>시간</p>
-              </div>
-              <div className='flex-between'>
-                <div className='reservation-place'>
-                  <p className='reservation-label'>도착지</p>
-                  <p>주소</p>
-                </div>
-                <p className='reservation-time'>시간</p>
-              </div>
-              <div className='flex-between'>
-                <p className='reservation-label'>짐</p>
-                <p>여행용 캐리어</p>
-              </div>
-            </div>
-          </div>
-
+            );
+          })}
         </div>
+        {/* 배송 상태 변경 모달 */}
+        <TransportStatusConfirmModal
+          isOpen={transportStateOpen}
+          onCancel={handleCancel}
+        />
       </div>
     </>
   )
-
+  
 }

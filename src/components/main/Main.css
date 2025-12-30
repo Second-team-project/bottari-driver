@@ -243,10 +243,13 @@
 .flex-between {
   display: flex;
   justify-content: space-between;
+  gap: 10px;
 }
 .reservation-place {
   display: flex;
   gap: 10px;
+  flex: 1;
+  align-items: flex-start;
 }
 .reservation-label {
   width: 58px;
@@ -256,4 +259,87 @@
   border: 1px solid #888888;
   border-radius: 20px;
   font-size: 13px;
+  flex-shrink: 0;
+}
+.addr-text {
+  flex: 1;
+  word-break: keep-all; /* 한글 단어 단위 줄바꿈 (가독성) */
+  white-space: normal;  /* 줄바꿈 허용 */
+}
+
+/* ------------------------ */
+/* ===== 아코디언 추가 ===== */
+/* ------------------------ */
+
+/* 짐 목록 정렬 (여러 줄 대응) */
+.items-start {
+  align-items: flex-start !important; /* 짐이 많아져도 라벨은 상단에 위치 */
+}
+.detail-label {
+  width: 58px;
+  padding: 2px;
+  color: #888888;
+  text-align: center;
+  border: 1px solid #888888;
+  border-radius: 20px;
+  font-size: 13px;
+  flex-shrink: 0;
+}
+.luggage-list {
+  text-align: right;
+  flex: 1;
+}
+.luggage-item {
+  margin: 0;
+  margin-bottom: 2px;
+}
+
+/* 화살표 중앙 정렬 */
+.accordion-arrow-row {
+  display: flex;
+  justify-content: center;
+  margin-top: 15px;
+  color: #888;
+}
+
+/* 아코디언 상세 정보 영역 */
+.accordion-detail {
+  /* 열릴 때 부드러운 애니메이션 */
+  overflow: hidden;
+  animation: slideDown 0.5s ease-out forwards;
+}
+
+@keyframes slideDown {
+  from { 
+    opacity: 0; 
+    max-height: 0; 
+  }
+  to { 
+    opacity: 1; 
+    max-height: 500px; /* 상세 내용 길이에 따라 조절 */
+  }
+}
+
+.label-top {
+  display: flex;
+  gap: 10px;
+  flex: 1;
+  align-items: flex-start;
+}
+
+.detail-divider {
+  height: 1px;
+  background-color: #eee;
+  margin: 15px 0;
+}
+.detail-content {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.detail-value {
+  flex: 1;
+  text-align: right;
+  word-break: break-all;
+  white-space: normal;
 }
