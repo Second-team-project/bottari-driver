@@ -1,6 +1,6 @@
 import './Main.css';
 import { useEffect, useRef, useState } from 'react';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowUpToLine, ChevronDown, ChevronUp } from 'lucide-react';
 import EditProfileModal from './modals/EditProfileModal.jsx';
 import WorkStatusConfirmModal from './modals/WorkStatusConfirmModal.jsx';
 import dayjs from 'dayjs';
@@ -37,6 +37,9 @@ export default function Main() {
   // 배송 상태 변경 모달
   const [selectedItem, setSelectedItem] = useState(null); // 선택된 예약 객체
   const [transportStateOpen, setTransportStateOpen] = useState(false); // 모달 표시 여부
+
+  // 스크롤이 생겼을 시 최상단으로 이동 버튼
+  const [showTopBtn, setShowTopBtn] = useState(false); // 버튼 표시 여부 상태
 
   // 오늘 날짜 포멧
   const today = dayjs().format('YYYY-MM-DD');
@@ -128,27 +131,25 @@ export default function Main() {
     COMPLETED: { label: '완료', className: 'btn-gray' },
   };
 
+  // 정렬 함수
   const getSortedList = () => {
     if (!list) return [];
     
-    // 원본 리스트 복사 후 정렬
     return [...list].sort((a, b) => {
       let priority = [];
       
-      // 선택된 라벨에 따른 우선순위 배열 설정
-      if (sortBtnValue === '운송 중') {
+      if (sortBtnValue === '운송 중' || sortBtnValue === 'IN_PROGRESS') {
         priority = ['IN_PROGRESS', 'PICKING_UP', 'COMPLETED'];
-      } else if (sortBtnValue === '완료') {
+      } else if (sortBtnValue === '완료' || sortBtnValue === 'COMPLETED') {
         priority = ['COMPLETED', 'PICKING_UP', 'IN_PROGRESS'];
       } else {
-        // 기본값('정렬 기준') 혹은 '픽업 전' 선택 시
+        // '정렬 기준' 혹은 '픽업 전'일 때
         priority = ['PICKING_UP', 'IN_PROGRESS', 'COMPLETED'];
       }
 
       const indexA = priority.indexOf(a.deliveryState);
       const indexB = priority.indexOf(b.deliveryState);
 
-      // 우선순위 인덱스 비교 정렬
       return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
     });
   };
@@ -165,6 +166,13 @@ export default function Main() {
     return s.replace(/(\d{3})(\d{3,4})(\d{4})/, "$1-$2-$3");
   };
 
+  function scrollToTop() {
+    window.scrollTo({
+      top: 0,
+      behavior: 'smooth',
+    });
+  };
+
   useEffect(() => {
     dispatch(statusThunk());
     dispatch(assignedThunk());
@@ -178,8 +186,21 @@ export default function Main() {
       }
     }
     document.addEventListener("mousedown", handleSearchClickOutside);
+
+    const handleShowButton = () => {
+      if (window.scrollY > 300) { // 300px 이상 스크롤 되면 버튼 보임
+        setShowTopBtn(true);
+      } else {
+        setShowTopBtn(false);
+      }
+    };
+
+    window.addEventListener("scroll", handleShowButton);
     
-    return () => document.removeEventListener("mousedown", handleSearchClickOutside);
+    return () => {
+      window.removeEventListener("scroll", handleShowButton);
+      document.removeEventListener("mousedown", handleSearchClickOutside)
+    };
   }, [])
   
   return (
@@ -363,6 +384,13 @@ export default function Main() {
             </div>
           )}
         </div>
+        {
+          showTopBtn && (
+            <button type='button' className='list-top-btn' onClick={scrollToTop}>
+              <ArrowUpToLine color='#ffffff' />
+            </button>
+          )
+        }
         {/* 배송 상태 변경 모달 */}
         <TransportStatusConfirmModal
           isOpen={transportStateOpen}
