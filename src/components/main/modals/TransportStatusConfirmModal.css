@@ -1,0 +1,59 @@
+/* ------------------------ */
+/* ========= 전체 ========= */
+/* ------------------------ */
+.modal-container {
+  display: flex;
+  flex-direction: column;
+  gap: 40px;
+}
+
+
+/* ------------------------ */
+/* ========= 내용 ========= */
+/* ------------------------ */
+/* ===== 타이틀 ===== */
+.trans-port-status-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+/* ===== 상태 ===== */
+.trans-port-status-container {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+.trans-port-status {
+  width: 80px;
+  padding: 3px 5px;
+  border-radius: 20px;
+  background: none;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* ------------------------ */
+/* ========= 버튼 ========= */
+/* ------------------------ */
+.trans-port-btn-container {
+  display: flex;
+  justify-content: space-between;
+}
+.trans-port-btn-container button {
+  width: 130px;
+  height: 30px;
+  border-radius: 5px;
+}
+
+/* ===== 취소 버튼 ===== */
+.cancel-btn {
+  color: var(--bottari-blue);
+  background-color: #fff;
+  border: 1px solid var(--bottari-blue);
+}
+/* ===== 확인 버튼 ===== */
+.confirm-btn {
+  border: none;
+  color: #fff;
+  background-color: var(--bottari-blue);
+}

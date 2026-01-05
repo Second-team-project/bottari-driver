@@ -8,7 +8,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { toast } from 'sonner';
 import TransportStatusConfirmModal from './modals/TransportStatusConfirmModal.jsx';
 import { statusThunk, toggleThunk } from '../../store/thunks/attendanceThunk.js';
-import { assignedThunk } from '../../store/thunks/deliveriesThunk.js';
+import { assignedThunk, updateStateThunk } from '../../store/thunks/deliveriesThunk.js';
 
 export default function Main() {
   const dispatch = useDispatch();
@@ -18,7 +18,7 @@ export default function Main() {
   // 기사 개인정보, 현재 근무 상태
   const { driver, isAttendanceState } = useSelector(state => state.auth);
   // 예약 정보
-  const { list } = useSelector(state => state.deliveries);
+  const { list, monthPerformance, todayPerformance } = useSelector(state => state.deliveries);
 
   // 개인정보 수정 모달
   const [editProfileOpen, setEditProfileOpen] = useState(false); // 모달 표시 여부
@@ -35,8 +35,7 @@ export default function Main() {
   const [expandedId, setExpandedId] = useState(null);
   
   // 배송 상태 변경 모달
-  const [isState, setIsState] = useState(false); // 실제 배송 상태
-  const [transportPendingStatus, setTransportPendingStatus] = useState(null); // 바꾸려는 상태
+  const [selectedItem, setSelectedItem] = useState(null); // 선택된 예약 객체
   const [transportStateOpen, setTransportStateOpen] = useState(false); // 모달 표시 여부
 
   // 오늘 날짜 포멧
@@ -72,7 +71,7 @@ export default function Main() {
 
   // 정렬 기준 필터 리스트
   const sortOptions = [
-    { value: 'RESERVED', label: '픽업 전' },
+    { value: 'PICKING_UP', label: '픽업 전' },
     { value: 'IN_PROGRESS', label: '운송 중' },
     { value: 'COMPLETED', label: '완료' },
   ];
@@ -85,10 +84,37 @@ export default function Main() {
   
 
   // 배송 상태 변경 버튼 클릭
-  function handlereservationStateChange(e) {
+  function handlereservationStateChange(e, item) {
     if (e) e.stopPropagation();
+
+    // 완료된 건은 더 이상 변경 불가
+    if (item.deliveryState === 'COMPLETED') {
+      toast.info("이미 완료된 배송입니다.");
+      return;
+    }
+
+    setSelectedItem(item); // [추가] 클릭한 카드의 정보를 저장
     setTransportStateOpen(true);
   }
+
+  // 배송 상태 변경 확인 버튼
+  const handleTransportConfirm = async () => {
+    if(!selectedItem) return;
+
+    const resultAction = await dispatch(updateStateThunk({
+      resId: selectedItem.resId,
+      currentState: selectedItem.deliveryState
+    }));
+
+    if(updateStateThunk.fulfilled.match(resultAction)) {
+      toast.success("상태가 변경되었습니다.");
+
+      setTransportStateOpen(false);
+      dispatch(assignedThunk()); // 서버에서 최신 실적과 리스트를 다시 불러옴
+    } else {
+      toast.error(resultAction.payload?.data?.msg || "변경 실패");
+    }
+  };
 
   
   // 아코디언 토글 함수
@@ -97,10 +123,38 @@ export default function Main() {
   };
   
   const stateMapping = {
-    RESERVED: { label: '픽업 전', className: 'btn-blue' },
+    PICKING_UP: { label: '픽업 전', className: 'btn-blue' },
     IN_PROGRESS: { label: '운송 중', className: 'btn-pink' },
     COMPLETED: { label: '완료', className: 'btn-gray' },
   };
+
+  const getSortedList = () => {
+    if (!list) return [];
+    
+    // 원본 리스트 복사 후 정렬
+    return [...list].sort((a, b) => {
+      let priority = [];
+      
+      // 선택된 라벨에 따른 우선순위 배열 설정
+      if (sortBtnValue === '운송 중') {
+        priority = ['IN_PROGRESS', 'PICKING_UP', 'COMPLETED'];
+      } else if (sortBtnValue === '완료') {
+        priority = ['COMPLETED', 'PICKING_UP', 'IN_PROGRESS'];
+      } else {
+        // 기본값('정렬 기준') 혹은 '픽업 전' 선택 시
+        priority = ['PICKING_UP', 'IN_PROGRESS', 'COMPLETED'];
+      }
+
+      const indexA = priority.indexOf(a.deliveryState);
+      const indexB = priority.indexOf(b.deliveryState);
+
+      // 우선순위 인덱스 비교 정렬
+      return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+    });
+  };
+
+  // 정렬된 리스트를 변수에 할당
+  const sortedList = getSortedList();
 
   // 전화번호 포멧
   const formatPhone = (val) => {
@@ -183,12 +237,12 @@ export default function Main() {
         <div className='white-box'>
           <div className='dashboard-left'>
             <p>이번 달 실적</p>
-            <p>55</p>
+            <p>{monthPerformance}</p>
           </div>
           <div className='dashboard-line'></div>
           <div className='dashboard-right'>
             <p>오늘 실적</p>
-            <p>6</p>
+            <p>{todayPerformance}</p>
           </div>
         </div>
       </div>
@@ -223,87 +277,97 @@ export default function Main() {
 
         {/* 배송 예약 리스트 */}
         <div className='list-container'>
-          {list && list.map((item) => {
-            const isExpanded = expandedId === item.id;
-            const currentState = stateMapping[item.deliveryState] || stateMapping.RESERVED;
+          {sortedList.length > 0 ?
+            (sortedList.map((item) => {
+              const isExpanded = expandedId === item.id;
+              const currentState = stateMapping[item.deliveryState] || stateMapping.PICKING_UP;
 
-            return (
-              // 상단 기본 정보 영역 (클릭 시 아코디언 토글)
-              <div key={item.id} className="list-card" onClick={() => toggleAccordion(item.id)}>
-                <div className="card-header-row">
-                  <button type='button'
-                    className={`reservation-state-btn ${currentState.className}`}
-                    onClick={handlereservationStateChange}
-                  >
-                    {currentState.label}
-                  </button>
+              return (
+                // 상단 기본 정보 영역 (클릭 시 아코디언 토글)
+                <div key={item.id} className="list-card" onClick={() => toggleAccordion(item.id)}>
+                  <div className="card-header-row">
+                    <button type='button'
+                      className={`reservation-state-btn ${currentState.className}`}
+                      onClick={(e) => handlereservationStateChange(e, item)}
+                    >
+                      {currentState.label}
+                    </button>
+                  </div>
+
+                  <div className='reservation-flow'>
+                    {/* 출발지 */}
+                    <div className='flex-between'>
+                      <div className='reservation-place'>
+                        <p className='reservation-label'>출발지</p>
+                        <p className='addr-text'>{item.startAddr}</p>
+                      </div>
+                      <p className='reservation-time'>{item.pickupTime}</p>
+                    </div>
+
+                    {/* 도착지 */}
+                    <div className='flex-between'>
+                      <div className='reservation-place'>
+                        <p className='reservation-label'>도착지</p>
+                        <p className='addr-text'>{item.endAddr}</p>
+                      </div>
+                      <p className='reservation-time'>{item.deliveryTime}</p>
+                    </div>
+
+                      {/* 짐 목록 (여러 개일 경우 줄바꿈) */}
+                      <div className='flex-between items-start'>
+                        <p className='detail-label'>짐</p>
+                        <div className='luggage-list'>
+                          {item.luggageList && item.luggageList.length > 0 ? (
+                            item.luggageList.map((lugText, idx) => (
+                              <p key={idx} className="luggage-item">{lugText}</p>
+                            ))
+                          ) : (
+                            <p className="luggage-item">짐 정보 없음</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="accordion-arrow-row">
+                      {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                    </div>
+
+                  {/* 아코디언 상세 정보 영역 (예약자 성함, 전화번호, 요청사항) */}
+                  {isExpanded && (
+                    <div className='accordion-detail'>
+                      <div className='detail-divider'></div>
+                      <div className='detail-content'>
+                        <div className='flex-between'>
+                          <p className='detail-label'>예약자</p>
+                          <p>{item.userName}</p>
+                        </div>
+                        <div className='flex-between'>
+                          <p className='detail-label'>전화번호</p>
+                          <p>{formatPhone(item.userPhone)}</p>
+                        </div>
+                        <div className='flex-between label-top'>
+                          <p className='detail-label'>요청사항</p>
+                          <p className='detail-value'>{item.request || '요청사항이 없습니다.'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
                 </div>
-
-                <div className='reservation-flow'>
-                  {/* 출발지 */}
-                  <div className='flex-between'>
-                    <div className='reservation-place'>
-                      <p className='reservation-label'>출발지</p>
-                      <p className='addr-text'>{item.startAddr}</p>
-                    </div>
-                    <p className='reservation-time'>{item.pickupTime}</p>
-                  </div>
-
-                  {/* 도착지 */}
-                  <div className='flex-between'>
-                    <div className='reservation-place'>
-                      <p className='reservation-label'>도착지</p>
-                      <p className='addr-text'>{item.endAddr}</p>
-                    </div>
-                    <p className='reservation-time'>{item.deliveryTime}</p>
-                  </div>
-
-                    {/* 짐 목록 (여러 개일 경우 줄바꿈) */}
-                    <div className='flex-between items-start'>
-                      <p className='detail-label'>짐</p>
-                      <div className='luggage-list'>
-                        {item.luggageList && item.luggageList.length > 0 ? (
-                          item.luggageList.map((lugText, idx) => (
-                            <p key={idx} className="luggage-item">{lugText}</p>
-                          ))
-                        ) : (
-                          <p className="luggage-item">짐 정보 없음</p>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="accordion-arrow-row">
-                    {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                  </div>
-
-                {/* 아코디언 상세 정보 영역 (예약자 성함, 전화번호, 요청사항) */}
-                {isExpanded && (
-                  <div className='accordion-detail'>
-                    <div className='detail-divider'></div>
-                    <div className='detail-content'>
-                      <div className='flex-between'>
-                        <p className='detail-label'>예약자</p>
-                        <p>{item.userName}</p>
-                      </div>
-                      <div className='flex-between'>
-                        <p className='detail-label'>전화번호</p>
-                        <p>{formatPhone(item.userPhone)}</p>
-                      </div>
-                      <div className='flex-between label-top'>
-                        <p className='detail-label'>요청사항</p>
-                        <p className='detail-value'>{item.request || '요청사항이 없습니다.'}</p>
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
+              );
+            })
+          ) : (
+            <div className='list-none-container'>
+              <p>
+                현재 배정된 예약 건이 없습니다.
+              </p>
+            </div>
+          )}
         </div>
         {/* 배송 상태 변경 모달 */}
         <TransportStatusConfirmModal
           isOpen={transportStateOpen}
+          currentState={selectedItem?.deliveryState} // 현재 상태 전달
+          onConfirm={handleTransportConfirm}         // 확인 함수 전달
           onCancel={handleCancel}
         />
       </div>

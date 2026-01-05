@@ -1,8 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { assignedThunk } from '../thunks/deliveriesThunk';
+import { assignedThunk, updateStateThunk } from '../thunks/deliveriesThunk';
 
 const initialState = {
   list: [],            // 가공된 배송 목록 배열
+  monthPerformance: 0, // 월 별 완료 건 수
+  todayPerformance: 0, // 오늘 완료 건 수
   loading: false,      // 로딩 상태
   error: null,         // 에러 메세지
 };
@@ -11,20 +13,29 @@ const deliverySlice = createSlice({
   name: 'delivery',
   initialState,
   reducers: {
-    // 로그아웃 시 혹은 데이터 초기화가 필요할 때 사용
     clearDeliveryData(state) {
       state.list = [];
+      state.monthPerformance = 0;
+      state.todayPerformance = 0;
       state.loading = false;
       state.error = null;
     },
   },
   extraReducers: (builder) => {
     builder
+      // 배송 목록 조회 (기사 배정 내역)
       .addCase(assignedThunk.fulfilled, (state, action) => {
         state.loading = false;
-        state.list = action.payload.data;
+
+        const { list, todayPerformance, monthPerformance } = action.payload.data;
+
+        state.list = list;
+        state.todayPerformance = todayPerformance;
+        state.monthPerformance = monthPerformance;
       })
-      // 배송 목록 조회 (기사 배정 내역)
+      .addCase(updateStateThunk.fulfilled, (state) => {
+        state.loading = false;
+      })
       .addCase(assignedThunk.pending, (state) => {
         state.loading = true;
         state.error = null;

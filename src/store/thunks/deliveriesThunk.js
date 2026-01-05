@@ -13,3 +13,16 @@ export const assignedThunk = createAsyncThunk(
     }
   }
 );
+
+export const updateStateThunk = createAsyncThunk(
+  'deliveries/updateStateThunk',
+  async ({ resId, currentState }, { rejectWithValue }) => {
+    try {
+      const response = await axiosInstance.patch('/api/driver/deliveries/state', { resId, currentState });
+      
+      return { resId, nextState: response.data.data.nextState };
+    } catch (error) {
+      return rejectWithValue(error.response.data);
+    }
+  }
+);

@@ -95,8 +95,8 @@ export default function EditProfileModal({ open, onClose }) {
               </div>
             </div>
             <div className='edit-btn-container'>
-              <button type='button' onClick={onClose}>취소</button>
-              <button type='submit' onClick={handleEditProfile}>저장</button>
+              <button type='button' className='cancel-btn' onClick={onClose}>취소</button>
+              <button type='submit' className='confirm-btn' onClick={handleEditProfile}>저장</button>
             </div>
           </form>
         </div>

@@ -343,3 +343,13 @@
   word-break: break-all;
   white-space: normal;
 }
+
+.list-none-container {
+  width: 100%;
+  height: 50vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 18px;
+  font-weight: 500;
+}
