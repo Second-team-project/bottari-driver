@@ -9,6 +9,8 @@ import { toast } from 'sonner';
 import TransportStatusConfirmModal from './modals/TransportStatusConfirmModal.jsx';
 import { statusThunk, toggleThunk } from '../../store/thunks/attendanceThunk.js';
 import { assignedThunk, updateStateThunk } from '../../store/thunks/deliveriesThunk.js';
+// 위치 저장용 커스텀 훅
+import useLocationTracker from '../../hooks/useLocationTracker.js';
 
 export default function Main() {
   const dispatch = useDispatch();
@@ -40,6 +42,20 @@ export default function Main() {
 
   // 오늘 날짜 포멧
   const today = dayjs().format('YYYY-MM-DD');
+
+  // DB에 gps 저장용
+  const { startTracking, stopTracking } = useLocationTracker();
+  useEffect(() => {
+    // 출근 중이면 → 1분마다 gps 저장
+    if (isAttendanceState) {
+      startTracking();
+
+    // 출근 중이 아니라면 → 저장 안 함
+    } else {
+      stopTracking();
+    }
+    return () => stopTracking();
+  }, [isAttendanceState]);
 
   // 근무 중, 휴무 토글 상태 변경 요청
   const handleToggleRequest = () => {
