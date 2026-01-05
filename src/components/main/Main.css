@@ -353,3 +353,21 @@
   font-size: 18px;
   font-weight: 500;
 }
+
+.list-top-btn {
+  width: 40px;
+  height: 40px;
+  position: fixed;
+  bottom: 30px;
+  right: 30px;
+  background-color: var(--bottari-blue);
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  -webkit-tap-highlight-color: transparent;
+}
+
+.list-top-btn:active {
+  transform: scale(0.95); /* 클릭 시 살짝 작아지는 효과 */
+}
