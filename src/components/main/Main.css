@@ -150,9 +150,10 @@
   margin-bottom: 15px;
   display: flex;
   justify-content: space-between;
+  align-items: center;
 }
 .list-title {
-  font-size: 18px;
+  font-size: 19px;
   font-weight: 500;
 }
 .list-container {
@@ -170,11 +171,14 @@
   justify-content: space-between;
   align-items: center;
   width: 85px;
-  padding: 1px 5px 1px 8px;
+  padding: 2px 5px 2px 8px;
   border: 1px solid #888888;
   border-radius: 5px;
   background: none;
   cursor: pointer;
+}
+.sort-btn.sort-open {
+  border-radius: 5px 5px 0 0;
 }
 .sort-dropdown-arrow {
   transform-origin: center center;
@@ -185,7 +189,7 @@
 }
 .sort-dropdown {
   position: absolute;
-  top: 100%;
+  top: 24px;
   left: 0;
   width: 100%;
   border: 1px solid #ccc;
