@@ -1,12 +1,9 @@
 /* ------------------------ */
 /* ========= 전체 ========= */
 /* ------------------------ */
-.modal-container {
-  display: flex;
-  flex-direction: column;
-  gap: 40px;
+.trans-port-status-title, .trans-port-status-container {
+  margin-bottom: 40px;
 }
-
 
 /* ------------------------ */
 /* ========= 내용 ========= */

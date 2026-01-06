@@ -290,7 +290,7 @@ export default function Main() {
           <p className='list-title'>오늘의 예약</p>
           <div className='sort-dropdown-container' ref={filterRef}>
             <button type='button'
-              className='sort-btn'
+              className={`sort-btn ${filterDropboxOpen ? 'sort-open' : ''}`}
               onClick={() => setFilterDropboxOpen(!filterDropboxOpen)}
               >
               {sortBtnValue}
