@@ -90,7 +90,8 @@ export default function Main() {
 
   // 정렬 기준 필터 리스트
   const sortOptions = [
-    { value: 'PICKING_UP', label: '픽업 전' },
+    { value: 'RESERVED', label: '픽업 전' },
+    { value: 'PICKING_UP', label: '픽업 중' },
     { value: 'IN_PROGRESS', label: '운송 중' },
     { value: 'COMPLETED', label: '완료' },
   ];
@@ -142,7 +143,8 @@ export default function Main() {
   };
   
   const stateMapping = {
-    PICKING_UP: { label: '픽업 전', className: 'btn-blue' },
+    RESERVED: { label: '픽업 전', className: 'btn-navy' },
+    PICKING_UP: { label: '픽업 중', className: 'btn-blue' },
     IN_PROGRESS: { label: '운송 중', className: 'btn-pink' },
     COMPLETED: { label: '완료', className: 'btn-gray' },
   };
@@ -154,13 +156,14 @@ export default function Main() {
     return [...list].sort((a, b) => {
       let priority = [];
       
-      if (sortBtnValue === '운송 중' || sortBtnValue === 'IN_PROGRESS') {
-        priority = ['IN_PROGRESS', 'PICKING_UP', 'COMPLETED'];
+      if (sortBtnValue === '픽업 중' || sortBtnValue === 'PICKING_UP') {
+        priority = ['PICKING_UP', 'RESERVED', 'IN_PROGRESS', 'COMPLETED'];
+      } else if (sortBtnValue === '운송 중' || sortBtnValue === 'IN_PROGRESS') {
+        priority = ['IN_PROGRESS', 'RESERVED', 'PICKING_UP', 'COMPLETED'];
       } else if (sortBtnValue === '완료' || sortBtnValue === 'COMPLETED') {
-        priority = ['COMPLETED', 'PICKING_UP', 'IN_PROGRESS'];
+        priority = ['COMPLETED', 'RESERVED', 'PICKING_UP', 'IN_PROGRESS'];
       } else {
-        // '정렬 기준' 혹은 '픽업 전'일 때
-        priority = ['PICKING_UP', 'IN_PROGRESS', 'COMPLETED'];
+        priority = ['RESERVED', 'PICKING_UP', 'IN_PROGRESS', 'COMPLETED'];
       }
 
       const indexA = priority.indexOf(a.deliveryState);
@@ -204,7 +207,7 @@ export default function Main() {
     document.addEventListener("mousedown", handleSearchClickOutside);
 
     const handleShowButton = () => {
-      if (window.scrollY > 300) { // 300px 이상 스크롤 되면 버튼 보임
+      if (window.scrollY > 250) { // 300px 이상 스크롤 되면 버튼 보임
         setShowTopBtn(true);
       } else {
         setShowTopBtn(false);
@@ -317,7 +320,7 @@ export default function Main() {
           {sortedList.length > 0 ?
             (sortedList.map((item) => {
               const isExpanded = expandedId === item.id;
-              const currentState = stateMapping[item.deliveryState] || stateMapping.PICKING_UP;
+              const currentState = stateMapping[item.deliveryState] || stateMapping.RESERVED;
 
               return (
                 // 상단 기본 정보 영역 (클릭 시 아코디언 토글)

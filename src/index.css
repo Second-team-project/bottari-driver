@@ -13,13 +13,20 @@
 :root {
   --bottari-skyblue: #8BE3FA;
   --bottari-pink: #FFBEC6;
+  --bottari-deeppink: #FF9CA6;
   --bottari-navy: #1E1B4B;
   --bottari-blue: #60A5FA;
-  --bottari-deeppink: #FF9CA6;
   --bottari-lightgray: #FBEFEF;
   --bottari-background: #E6FAFF;
+  --bottari-gray: #888888;
   --bottari-input: #EEEEEE;
   --bottari-placeholder: #777777;
+  --bottari-offwhite: #F9FAFB;
+  --bottari-coolgray: #E5E7EB;
+  --bottari-grayfont: #6B7280;
+  --bottari-slateblue: #5D75A6;
+  --bottari-softblue: #6A9DED;
+  --bottari-darkslate: #111827;
 }
 
 

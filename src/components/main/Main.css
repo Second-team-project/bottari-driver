@@ -227,6 +227,10 @@
   color: var(--bottari-blue);
   border: 2px solid var(--bottari-blue);
 }
+.btn-navy {
+  color: var(--bottari-navy);
+  border: 2px solid var(--bottari-navy);
+}
 .btn-pink {
   color: var(--bottari-deeppink);
   border: 2px solid var(--bottari-deeppink);
