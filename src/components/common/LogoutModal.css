@@ -1,0 +1,28 @@
+.logout-modal-title {
+  margin-bottom: 40px;
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.logout-btn-container {
+  display: flex;
+  justify-content: space-between;
+}
+.logout-btn-container button {
+  width: 130px;
+  height: 30px;
+  border-radius: 5px;
+}
+
+/* ===== 취소 버튼 ===== */
+.cancel-btn {
+  color: var(--bottari-blue);
+  background-color: #fff;
+  border: 1px solid var(--bottari-blue);
+}
+/* ===== 확인 버튼 ===== */
+.confirm-btn {
+  border: none;
+  color: #fff;
+  background-color: var(--bottari-blue);
+}
