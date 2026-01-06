@@ -22,7 +22,6 @@ export default function ProtectedRouter() {
           // 쿠키에 담긴 Refresh Token으로 Access Token 요청
           await dispatch(reissueThunk()).unwrap();
         } catch (error) {
-          console.log("인증 체크 실패 (비로그인 상태):", error);
           dispatch(clearAuth()); // 토큰 만료 시 완전히 비움
         }
       }

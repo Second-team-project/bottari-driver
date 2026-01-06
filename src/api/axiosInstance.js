@@ -57,8 +57,9 @@ axiosInstance.interceptors.request.use(async (config) => {
         accessToken = response.data.accessToken;
       } catch (reissueError) {
         store.dispatch(clearAuth());
-        if (!window.location.pathname.includes('/login')) {
-          window.location.href = '/login';
+
+        if(!window.location.pathname.includes('/login')) {
+          window.location.replace('/login');
         }
         return Promise.reject(reissueError);
       }
