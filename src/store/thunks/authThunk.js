@@ -12,7 +12,7 @@ export const loginThunk = createAsyncThunk(
 
       return response.data;
     } catch (error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data || { msg: error.message });
     }
   }
 );
@@ -28,7 +28,23 @@ export const reissueThunk = createAsyncThunk(
 
       return response.data;
     } catch(error) {
-      return rejectWithValue(error);
+      return rejectWithValue(error.response?.data || { msg: error.message });
+    }
+  }
+);
+
+// 로그아웃
+export const logoutThunk = createAsyncThunk(
+  'auth/logoutThunk',
+  async (_, { rejectWithValue }) => {
+    try {
+      const url = '/api/driver/auth/logout';
+
+      const response = await axiosInstance.post(url);
+
+      return response.data;
+    } catch(error) {
+      return rejectWithValue(error.response?.data || { msg: error.message });
     }
   }
 );
