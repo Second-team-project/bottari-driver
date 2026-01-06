@@ -29,7 +29,11 @@ axiosInstance.interceptors.request.use(async (config) => {
   const skipUrls = ['/api/driver/auth/reissue', '/api/driver/auth/login'];
   if (skipUrls.some(url => config.url.includes(url))) return config;
 
-  let { accessToken } = store.getState().auth;
+  let { accessToken, isLoggedIn } = store.getState().auth;
+
+  if (!isLoggedIn) {
+    return config;
+  }
 
   try {
     let needsReissue = false;

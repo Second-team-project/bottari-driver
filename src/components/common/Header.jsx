@@ -29,14 +29,14 @@ export default function Header() {
   async function confirmLogOut() {
     try {
       await dispatch(logoutThunk()).unwrap();
-
+      
       dispatch(clearDeliveryData());
       dispatch(clearAuth());
       
+      setLogoutOpen(false);
+
       navigate('/login', { replace: true });
       toast.success("로그아웃 되었습니다.");
-
-      return setLogoutOpen(false);
     } catch (error) {
       toast.error("로그아웃에 실패했습니다. 잠시 후 다시 시도해주세요.");
     }
