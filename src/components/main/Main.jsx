@@ -223,14 +223,11 @@ export default function Main() {
     <>
      {/* 기사 개인정보 */}
       <div className='driver-info'>
-        <div className='info-left'>
+        <div className='info-top'>
           <div className='info-left-top'>
             <p>안녕하세요.</p>
             <p>{`${driver.driverName} 기사님`}</p>
           </div>
-          <p className='info-left-bottom'>{`오늘은 ${today} 입니다.`}</p>
-        </div>
-        <div className='info-right'>
           {/* 개인정보 수정 버튼 */}
           <button type='button'
             className='info-modify'
@@ -238,6 +235,9 @@ export default function Main() {
           >
             정보 수정 하기
           </button>
+        </div>
+        <div className='info-bottom'>
+          <p className='info-left-bottom'>{`오늘은 ${today} 입니다.`}</p>
 
           {/* 개인정보 수정 모달 */}
           <EditProfileModal
