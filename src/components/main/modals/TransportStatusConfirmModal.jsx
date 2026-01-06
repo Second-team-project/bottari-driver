@@ -5,8 +5,14 @@ export default function TransportStatusConfirmModal({isOpen, onCancel, onConfirm
   if(!isOpen) return null;
 
   const statusMap = {
-    PICKING_UP: {
+    RESERVED: {
       current: "픽업 전",
+      next: "픽업 중",
+      currentClass: "btn-navy", // Main.css의 변수 활용
+      nextClass: "btn-blue"
+    },
+    PICKING_UP: {
+      current: "픽업 중",
       next: "운송 중",
       currentClass: "btn-blue", // Main.css의 변수 활용
       nextClass: "btn-pink"
@@ -19,7 +25,7 @@ export default function TransportStatusConfirmModal({isOpen, onCancel, onConfirm
     }
   };
 
-  const config = statusMap[currentState] || statusMap.PICKING_UP;
+  const config = statusMap[currentState] || statusMap.RESERVED;
 
   return (
     <>
