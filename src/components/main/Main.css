@@ -3,36 +3,35 @@
 /* ------------------------ */
 .driver-info {
   display: flex;
+  flex-direction: column;
   justify-content: space-between;
-  padding: 30px;
+  gap: 20px;
+  padding: 30px 30px 20px;
   background-color: var(--bottari-blue);
 }
-.info-left {
+.info-top {
   display: flex;
-  flex-direction: column;
-  gap: 30px;
-  color: #fff;
+  justify-content: space-between;
+  align-items: center;
 }
 .info-left-top {
+  color: #fff;
   font-size: 22px;
   font-weight: 600;
   line-height: 1.3em;
 }
 .info-left-bottom {
   font-size: 14px;
+  color: #fff;
 }
-.info-right {
+.info-bottom {
   display: flex;
-  flex-direction: column;
   justify-content: space-between;
-  align-items: end;
-  gap: 25px;
+  align-items: center;
 }
 
 /* ===== 정보 수정 버튼 ===== */
 .info-modify {
-  position: relative;
-  top: 12px;
   padding: 4px 6px;
   width: 100px;
   border-radius: 10px;
