@@ -7,6 +7,7 @@ import { statusThunk } from './store/thunks/attendanceThunk.js';
 import { useDispatch } from 'react-redux';
 import { toast, Toaster } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import NotificationInfo from './components/subscriptions/NotificationInfo.jsx';
 
 function App() {
   const navigate = useNavigate();
@@ -49,6 +50,7 @@ function App() {
       <Toaster position="top-center" />
       <Header />
       <ProtectedRouter />
+      <NotificationInfo />
     </>
   )
 }

@@ -30,9 +30,6 @@ export default function Header() {
     try {
       await dispatch(logoutThunk()).unwrap();
       
-      dispatch(clearDeliveryData());
-      dispatch(clearAuth());
-      
       setLogoutOpen(false);
 
       navigate('/login', { replace: true });

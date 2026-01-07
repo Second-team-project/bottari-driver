@@ -16,8 +16,10 @@ export default function ProtectedRouter() {
 
   useEffect(() => {
     async function checkAuth() {
-      // 1. Redux에 로그인이 안 되어 있다면 재발급(Refresh) 시도
-      if (!isLoggedIn) {
+      // 이미 로그인 되었거나, 퍼블릭 페이지(로그인창)에 있다면 굳이 reissue 안 함
+      const isPublicPage = PUBLIC_ROUTES.includes(location.pathname);
+
+      if (!isLoggedIn && !isPublicPage) {
         try {
           // 쿠키에 담긴 Refresh Token으로 Access Token 요청
           await dispatch(reissueThunk()).unwrap();
@@ -25,11 +27,11 @@ export default function ProtectedRouter() {
           dispatch(clearAuth()); // 토큰 만료 시 완전히 비움
         }
       }
-      // 2. 재발급 시도가 끝나면(성공이든 실패든) 화면을 보여줌
+      // 재발급 시도가 끝나면(성공이든 실패든) 화면을 보여줌
       setIsAuthChecked(true);
     }
     checkAuth();
-  }, [dispatch, isLoggedIn]);
+  }, [isLoggedIn]);
 
   // 인증 확인 중에는 빈 화면 (혹은 스피너) 노출
   if (!isAuthChecked) {

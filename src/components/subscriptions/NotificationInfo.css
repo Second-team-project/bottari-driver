@@ -1,0 +1,47 @@
+.modal-cancel-btn {
+  display: flex;
+  justify-content: end;
+}
+
+.push-modal-title {
+  font-size: 18px;
+  font-weight: 600;
+}
+.push-modal-title, .push-modal-content-box {
+  margin-bottom: 30px;
+}
+
+.push-modal-content-box {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+.push-modal-content {
+  line-height: 1.4rem;
+  font-size: 15px;
+}
+
+/* ===== 버튼 공용 ===== */
+.push-btn-container {
+  display: flex;
+  justify-content: space-between;
+}
+.push-btn-container button {
+  width: 130px;
+  height: 30px;
+  border-radius: 5px;
+}
+
+/* ===== 취소 버튼 ===== */
+.cancel-btn {
+  color: var(--bottari-blue);
+  background-color: #fff;
+  border: 1px solid var(--bottari-blue);
+  font-size: 13px;
+}
+/* ===== 확인 버튼 ===== */
+.confirm-btn {
+  border: none;
+  color: #fff;
+  background-color: var(--bottari-blue);
+}
