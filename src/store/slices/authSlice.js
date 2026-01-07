@@ -1,26 +1,25 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { loginThunk, reissueThunk } from '../thunks/authThunk.js';
+import { loginThunk, logoutThunk, reissueThunk } from '../thunks/authThunk.js';
 import { profileThunk } from '../thunks/profileThunk.js';
 import { statusThunk, toggleThunk } from '../thunks/attendanceThunk.js';
 import axiosInstance from '../../api/axiosInstance.js';
+import { clearDeliveryData } from './deliveriesSlice.js';
 
 const initialState = {
   accessToken: null,
   driver: null,
   isLoggedIn: false,
   isAttendanceState: false, // 출퇴근 상태
+
+  loading: false,
+  error: null,
 }
 
 const slice = createSlice({
   name: 'auth',
   initialState,
   reducers: {
-    clearAuth(state) {
-      state.accessToken = null;
-      state.user = null;
-      state.isLoggedIn = false;
-      state.isAttendanceState = false;
-    },
+    clearAuth: () => initialState,
   },
   extraReducers: (builder) => {
     builder
@@ -58,7 +57,25 @@ const slice = createSlice({
       .addCase(toggleThunk.fulfilled, (state, action) => {
         // 출퇴근 토글 성공 시 상태 반영
         state.isAttendanceState = action.payload.data.state === 'CLOCKED_IN';
-      });
+      })
+      .addCase(logoutThunk.fulfilled, (state) => {
+        return initialState;
+      })
+
+      .addMatcher(
+        (action) => action.type.endsWith('/pending'),
+        (state) => {
+          state.loading = true;
+          state.error = null;
+        }
+      )
+      .addMatcher(
+        (action) => action.type.endsWith('/rejected'),
+        (state, action) => {
+          state.loading = false;
+          state.error = action.payload;
+        }
+      );
   },
 });
 

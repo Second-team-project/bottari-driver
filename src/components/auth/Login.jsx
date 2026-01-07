@@ -57,8 +57,8 @@ export default function Login() {
       {/* 로그인 */}
       <div>
         <form className='login-container'>
-          <input type="text" className='login-input-id' onChange={ e => { setId(e.target.value) } } placeholder='아이디' />
-          <input type="password" className='login-input-password' onChange={e => { setPassword(e.target.value) }} placeholder='패스워드' />
+          <input type="text" className='login-input-id' onChange={ e => { setId(e.target.value) } } autoComplete="username" placeholder='아이디' />
+          <input type="password" className='login-input-password' onChange={e => { setPassword(e.target.value) }} autoComplete="current-password" placeholder='패스워드' />
           <button type='submit' className='login-btn' onClick={handleLogin}>로그인</button>
         </form>
       </div>
