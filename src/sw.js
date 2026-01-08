@@ -34,13 +34,13 @@ registerRoute(
 // --------------------------
 // API 요청 캐싱(최소 동작 보장, GET을 제외한 나머지는 제외)
 // --------------------------
-registerRoute(
-  ({request, url}) => url.origin === import.meta.env.VITE_SERVER_URL && request.method === 'GET',
-  new StaleWhileRevalidate({
-    cacheName: `${PREFIX}-api-cache`,
-    networkTimeoutSeconds: 3
-  })
-);
+// registerRoute(
+//   ({request, url}) => url.origin === import.meta.env.VITE_SERVER_URL && request.method === 'GET',
+//   new StaleWhileRevalidate({
+//     cacheName: `${PREFIX}-api-cache`,
+//     networkTimeoutSeconds: 3
+//   })
+// );
 
 // --------------------------
 // 웹푸시 핸들러
