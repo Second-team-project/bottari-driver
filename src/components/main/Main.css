@@ -143,6 +143,7 @@
 /* ======= 예약 리스트 ====== */
 /* ------------------------ */
 .reservation-list {
+  margin-bottom: 79px;
   padding: 15px;
 }
 .reservation-header {
@@ -191,15 +192,37 @@
   top: 24px;
   left: 0;
   width: 100%;
-  border: 1px solid #ccc;
+  border: 1px solid #888888;
   background-color: #fff;
   z-index: 2;
   list-style: none;
   box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+
+  max-height: 0;
+  overflow: hidden;
+  opacity: 0;
+  visibility: hidden;
+
+  transition: max-height 0.3s ease-out, opacity 0.3s ease-out visibility 0.2s;
+}
+.sort-dropdown.open {
+  max-height: 200px;
+  opacity: 1;
+  visibility: visible;
+
+  transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
 }
 .sort-dropdown-item {
   padding: 1px 5px;
   cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 15px;
+}
+.sort-dropdown-item.active {
+  background-color: var(--bottari-coolgray);
+  color: var(--bottari-placeholder);
 }
 .sort-dropdown-item:hover {
   background-color: #ccc;
@@ -365,7 +388,7 @@
   width: 40px;
   height: 40px;
   position: fixed;
-  bottom: 30px;
+  bottom: 100px;
   right: 30px;
   background-color: var(--bottari-blue);
   border: none;
@@ -377,4 +400,17 @@
 
 .list-top-btn:active {
   transform: scale(0.95); /* 클릭 시 살짝 작아지는 효과 */
+}
+
+/* 푸터 */
+.driver-footer-container {
+  width: 100%;
+  padding: 20px;
+  position: fixed;
+  bottom: 0;
+  font-size: 11px;
+  color: #fff;
+  text-align: center;
+  background-color: var(--bottari-blue);
+  white-space: pre-wrap;
 }

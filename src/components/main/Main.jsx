@@ -1,6 +1,6 @@
 import './Main.css';
 import { useEffect, useRef, useState } from 'react';
-import { ArrowUpToLine, ChevronDown, ChevronUp } from 'lucide-react';
+import { ArrowUpToLine, Check, ChevronDown, ChevronUp } from 'lucide-react';
 import EditProfileModal from './modals/EditProfileModal.jsx';
 import WorkStatusConfirmModal from './modals/WorkStatusConfirmModal.jsx';
 import dayjs from 'dayjs';
@@ -18,7 +18,7 @@ export default function Main() {
   const filterRef = useRef(null);
 
   // 기사 개인정보, 현재 근무 상태
-  const { driver, isAttendanceState } = useSelector(state => state.auth);
+  const { driver, isAttendanceState, error } = useSelector(state => state.auth);
   // 예약 정보
   const { list, monthPerformance, todayPerformance } = useSelector(state => state.deliveries);
 
@@ -30,7 +30,7 @@ export default function Main() {
   const [workStatusModalOpen, setWorkStatusModalOpen] = useState(false); // 모달 표시 여부
   
   // 정렬기준 선택 드랍박스
-  const [sortBtnValue, setSortBtnValue] = useState('정렬 기준'); // 정렬 기준 버튼 value
+  const [sortBtnValue, setSortBtnValue] = useState('전체'); // 정렬 기준 버튼 value
   const [filterDropboxOpen, setFilterDropboxOpen] = useState(false); // 드랍 박스 on/off
 
   // 아코디언 상태 관리 (열려있는 카드의 ID 저장)
@@ -75,7 +75,7 @@ export default function Main() {
         toast.success(workPendingStatus === 'CLOCKED_IN' ? "출근되었습니다." : "퇴근되었습니다.");
         setWorkStatusModalOpen(false);
       } else {
-        toast.error(resultAction.payload?.data.msg || "상태 변경에 실패했습니다.");
+        toast.error(resultAction.payload?.msg || "시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
       }
     } catch (error) {
       toast.error("시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
@@ -90,6 +90,7 @@ export default function Main() {
 
   // 정렬 기준 필터 리스트
   const sortOptions = [
+    { value: 'ALL_LIST', label: '전체' },
     { value: 'RESERVED', label: '픽업 전' },
     { value: 'PICKING_UP', label: '픽업 중' },
     { value: 'IN_PROGRESS', label: '운송 중' },
@@ -132,7 +133,7 @@ export default function Main() {
       setTransportStateOpen(false);
       dispatch(assignedThunk()); // 서버에서 최신 실적과 리스트를 다시 불러옴
     } else {
-      toast.error(resultAction.payload?.data?.msg || "변경 실패");
+      toast.error(resultAction.payload?.msg || "시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
     }
   };
 
@@ -152,18 +153,36 @@ export default function Main() {
   // 정렬 함수
   const getSortedList = () => {
     if (!list) return [];
+
+    // 완료 필터링
+    const filteredList = list.filter(item => {
+      if(sortBtnValue === '픽업 전' || sortBtnValue === 'RESERVED') {
+        return item.deliveryState === 'RESERVED';
+      } else if (sortBtnValue === '픽업 중' || sortBtnValue === 'PICKING_UP') {
+        return item.deliveryState === 'PICKING_UP';
+      } else if (sortBtnValue === '운송 중' || sortBtnValue === 'IN_PROGRESS') {
+        return item.deliveryState === 'IN_PROGRESS';
+      } else if (sortBtnValue === '완료' || sortBtnValue === 'COMPLETED') {
+        return item.deliveryState === 'COMPLETED';
+      } else {
+        // 완료가 아닌 상태에서는 리스트에서 'COMPLETED'인 항목을 아예 제거합니다.
+        return item.deliveryState !== 'COMPLETED';
+      }
+    });
     
-    return [...list].sort((a, b) => {
+    return [...filteredList].sort((a, b) => {
       let priority = [];
       
-      if (sortBtnValue === '픽업 중' || sortBtnValue === 'PICKING_UP') {
-        priority = ['PICKING_UP', 'RESERVED', 'IN_PROGRESS', 'COMPLETED'];
+      if(sortBtnValue === '픽업 전' || sortBtnValue === 'RESERVED') {
+        priority = ['RESERVED'];
+      } else if (sortBtnValue === '픽업 중' || sortBtnValue === 'PICKING_UP') {
+        priority = ['PICKING_UP'];
       } else if (sortBtnValue === '운송 중' || sortBtnValue === 'IN_PROGRESS') {
-        priority = ['IN_PROGRESS', 'RESERVED', 'PICKING_UP', 'COMPLETED'];
+        priority = ['IN_PROGRESS'];
       } else if (sortBtnValue === '완료' || sortBtnValue === 'COMPLETED') {
-        priority = ['COMPLETED', 'RESERVED', 'PICKING_UP', 'IN_PROGRESS'];
+        priority = ['COMPLETED'];
       } else {
-        priority = ['RESERVED', 'PICKING_UP', 'IN_PROGRESS', 'COMPLETED'];
+        priority = ['RESERVED', 'PICKING_UP', 'IN_PROGRESS'];
       }
 
       const indexA = priority.indexOf(a.deliveryState);
@@ -300,18 +319,24 @@ export default function Main() {
               <ChevronDown size={15} className={`sort-dropdown-arrow ${filterDropboxOpen ? 'sort-open' : ''}`} />
             </button>
             {/* 정렬 드랍다운 */}
-            {filterDropboxOpen && (
-              <ul className="sort-dropdown">
-                {sortOptions.map((option) => (
+            <ul className={`sort-dropdown ${filterDropboxOpen ? 'open' : ''}`}>
+              {sortOptions.map((option) => {
+                const isActive = sortBtnValue === option.label;
+                return (
                   <li key={option.value}
-                    className="sort-dropdown-item"
+                    className={`sort-dropdown-item ${isActive ? 'active' : ''}`}
                     onClick={() => handleSortChange(option.label)}
                   >
                     {option.label}
+                    {isActive &&
+                      <span className="check-mark">
+                        <Check size={13} />
+                      </span>
+                    }
                   </li>
-                ))}
-              </ul>
-            )}
+                );
+              })}
+            </ul>
           </div>
         </div>
 
@@ -350,7 +375,6 @@ export default function Main() {
                         <p className='reservation-label'>도착지</p>
                         <p className='addr-text'>{item.endAddr}</p>
                       </div>
-                      <p className='reservation-time'>{item.deliveryTime}</p>
                     </div>
 
                       {/* 짐 목록 (여러 개일 경우 줄바꿈) */}
@@ -403,6 +427,8 @@ export default function Main() {
             </div>
           )}
         </div>
+
+        {/* 위로 올라가는 버튼 */}
         {
           showTopBtn && (
             <button type='button' className='list-top-btn' onClick={scrollToTop}>
@@ -410,6 +436,7 @@ export default function Main() {
             </button>
           )
         }
+
         {/* 배송 상태 변경 모달 */}
         <TransportStatusConfirmModal
           isOpen={transportStateOpen}
@@ -417,6 +444,13 @@ export default function Main() {
           onConfirm={handleTransportConfirm}         // 확인 함수 전달
           onCancel={handleCancel}
         />
+      </div>
+
+      {/* 푸터 */}
+      <div className='driver-footer-container'>
+        <p>(주)보따리 | 대표  김보따 | 개인정보 보호책임자  김보따</p>
+        <p>주소  대구광역시 중구 중앙대로 394 5층 | 전화  053 572 1005</p>
+        <p>COPYRIGHT © 2026 BOTTARI.ALL RIGHTS RESERVED.</p>
       </div>
     </>
   )

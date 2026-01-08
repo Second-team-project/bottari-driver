@@ -37,7 +37,7 @@ export default function EditProfileModal({ open, onClose }) {
       onClose();
     } else {
       // 실패 시
-      toast.error('수정 실패: ' + (resultAction.payload?.data.msg || '알 수 없는 오류'));
+      toast.error('수정 실패: ' + (resultAction.payload?.msg || '시스템 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'));
     }
   }
 

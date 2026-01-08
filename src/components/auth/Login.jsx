@@ -3,7 +3,7 @@ import './Login.css';
 import { useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { loginThunk } from '../../store/thunks/authThunk.js';
-import { toast, Toaster } from 'sonner';
+import { toast } from 'sonner';
 import dayjs from 'dayjs';
 
 export default function Login() {
@@ -26,7 +26,7 @@ export default function Login() {
       
       return navigate('/main', { replace: true });
     } catch(error) {
-      const rawMessage = error.response?.data?.data?.[0];
+      const rawMessage = error.msg || error.data?.[0];
 
       function extractAfterColon(message) {
         // 문자열이 아니거나, 문자열이어도 값이 비어 있으면 처리하지 마라 라는 방어코드
