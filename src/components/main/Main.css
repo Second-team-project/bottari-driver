@@ -152,6 +152,11 @@
   justify-content: space-between;
   align-items: center;
 }
+.list-filter-container {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
 .list-title {
   font-size: 19px;
   font-weight: 500;
@@ -160,6 +165,16 @@
   display: flex;
   flex-direction: column;
   gap: 7px;
+}
+
+/* ===== 날짜 선택 ===== */
+.list-date-input {
+  position: relative;
+  top: -1px;
+  height: 25px;
+  padding: 0 7px;
+  border: 1px solid #888888;
+  border-radius: 5px;
 }
 
 /* ===== 카드 정렬 드랍다운 ===== */
@@ -213,7 +228,7 @@
   transition: max-height 0.3s ease-in-out, opacity 0.3s ease-in-out;
 }
 .sort-dropdown-item {
-  padding: 1px 5px;
+  padding: 2px 5px;
   cursor: pointer;
   display: flex;
   justify-content: space-between;
@@ -221,8 +236,8 @@
   font-size: 15px;
 }
 .sort-dropdown-item.active {
-  background-color: var(--bottari-coolgray);
-  color: var(--bottari-placeholder);
+  background-color: var(--bottari-placeholder);
+  color: #fff;
 }
 .sort-dropdown-item:hover {
   background-color: #ccc;
@@ -405,12 +420,15 @@
 /* 푸터 */
 .driver-footer-container {
   width: 100%;
-  padding: 20px;
+  padding: 17px;
   position: fixed;
   bottom: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
   font-size: 11px;
   color: #fff;
-  text-align: center;
   background-color: var(--bottari-blue);
   white-space: pre-wrap;
 }
