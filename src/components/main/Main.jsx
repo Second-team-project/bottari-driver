@@ -322,7 +322,7 @@ export default function Main() {
       {/* 예약 리스트 */}
       <div className='reservation-list'>
         <div className='reservation-header'>
-          <p className='list-title'>{selectedDate === today ? '오늘의 예약' : `${dayjs(selectedDate).format('MM/DD')}일 예약`}</p>
+          <p className='list-title'>{selectedDate === today ? '오늘의 예약' : `${dayjs(selectedDate).format('MM/DD')} 예약`}</p>
           <div className='list-filter-container'>
             {/* 날짜 선택 */}
             <div className='list-date-container'>

@@ -169,6 +169,7 @@
 
 /* ===== 날짜 선택 ===== */
 .list-date-input {
+  width: 125px;
   position: relative;
   top: -1px;
   height: 25px;
@@ -185,7 +186,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  width: 85px;
+  width: 78px;
   padding: 2px 5px 2px 8px;
   border: 1px solid #888888;
   border-radius: 5px;
