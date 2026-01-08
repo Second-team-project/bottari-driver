@@ -17,6 +17,10 @@ export default function Main() {
 
   const filterRef = useRef(null);
 
+  // 오늘 날짜 포멧
+  const today = dayjs().format('YYYY-MM-DD');
+
+
   // 기사 개인정보, 현재 근무 상태
   const { driver, isAttendanceState, error } = useSelector(state => state.auth);
   // 예약 정보
@@ -29,6 +33,9 @@ export default function Main() {
   const [workPendingStatus, setWorkPendingStatus] = useState(null); // 바꾸려는 상태
   const [workStatusModalOpen, setWorkStatusModalOpen] = useState(false); // 모달 표시 여부
   
+  // 날짜 선택
+  const [selectedDate, setSelectedDate] = useState(today);
+
   // 정렬기준 선택 드랍박스
   const [sortBtnValue, setSortBtnValue] = useState('전체'); // 정렬 기준 버튼 value
   const [filterDropboxOpen, setFilterDropboxOpen] = useState(false); // 드랍 박스 on/off
@@ -42,9 +49,6 @@ export default function Main() {
 
   // 스크롤이 생겼을 시 최상단으로 이동 버튼
   const [showTopBtn, setShowTopBtn] = useState(false); // 버튼 표시 여부 상태
-
-  // 오늘 날짜 포멧
-  const today = dayjs().format('YYYY-MM-DD');
 
   // DB에 gps 저장용
   const { startTracking, stopTracking } = useLocationTracker();
@@ -87,6 +91,18 @@ export default function Main() {
     setWorkStatusModalOpen(false);
     setTransportStateOpen(false);
   };
+
+
+  // 예약 목록 날짜 변경
+  const handleDateChange = (e) => {
+    const newDate = e.target.value;
+
+    setSelectedDate(newDate);
+    
+    // Thunk 호출 시 날짜 인자 전달
+    dispatch(assignedThunk(newDate));
+  };
+
 
   // 정렬 기준 필터 리스트
   const sortOptions = [
@@ -154,37 +170,34 @@ export default function Main() {
   const getSortedList = () => {
     if (!list) return [];
 
+    const isLookingAtToday = selectedDate === today;
+
     // 완료 필터링
     const filteredList = list.filter(item => {
       if(sortBtnValue === '픽업 전' || sortBtnValue === 'RESERVED') {
         return item.deliveryState === 'RESERVED';
-      } else if (sortBtnValue === '픽업 중' || sortBtnValue === 'PICKING_UP') {
+      }
+      if (sortBtnValue === '픽업 중' || sortBtnValue === 'PICKING_UP') {
         return item.deliveryState === 'PICKING_UP';
-      } else if (sortBtnValue === '운송 중' || sortBtnValue === 'IN_PROGRESS') {
+      }
+      if (sortBtnValue === '운송 중' || sortBtnValue === 'IN_PROGRESS') {
         return item.deliveryState === 'IN_PROGRESS';
-      } else if (sortBtnValue === '완료' || sortBtnValue === 'COMPLETED') {
+      }
+      if (sortBtnValue === '완료' || sortBtnValue === 'COMPLETED') {
         return item.deliveryState === 'COMPLETED';
-      } else {
-        // 완료가 아닌 상태에서는 리스트에서 'COMPLETED'인 항목을 아예 제거합니다.
+      }
+
+      if (isLookingAtToday) {
+        // 오늘 날짜라면: 아직 끝나지 않은 건들만 보여줌 (완료 제외)
         return item.deliveryState !== 'COMPLETED';
+      } else {
+        // 과거 또는 미래 날짜라면: 완료된 건을 포함하여 모두 보여줌
+        return true;
       }
     });
     
     return [...filteredList].sort((a, b) => {
-      let priority = [];
-      
-      if(sortBtnValue === '픽업 전' || sortBtnValue === 'RESERVED') {
-        priority = ['RESERVED'];
-      } else if (sortBtnValue === '픽업 중' || sortBtnValue === 'PICKING_UP') {
-        priority = ['PICKING_UP'];
-      } else if (sortBtnValue === '운송 중' || sortBtnValue === 'IN_PROGRESS') {
-        priority = ['IN_PROGRESS'];
-      } else if (sortBtnValue === '완료' || sortBtnValue === 'COMPLETED') {
-        priority = ['COMPLETED'];
-      } else {
-        priority = ['RESERVED', 'PICKING_UP', 'IN_PROGRESS'];
-      }
-
+      const priority = ['RESERVED', 'PICKING_UP', 'IN_PROGRESS', 'COMPLETED'];
       const indexA = priority.indexOf(a.deliveryState);
       const indexB = priority.indexOf(b.deliveryState);
 
@@ -309,34 +322,46 @@ export default function Main() {
       {/* 예약 리스트 */}
       <div className='reservation-list'>
         <div className='reservation-header'>
-          <p className='list-title'>오늘의 예약</p>
-          <div className='sort-dropdown-container' ref={filterRef}>
-            <button type='button'
-              className={`sort-btn ${filterDropboxOpen ? 'sort-open' : ''}`}
-              onClick={() => setFilterDropboxOpen(!filterDropboxOpen)}
-              >
-              {sortBtnValue}
-              <ChevronDown size={15} className={`sort-dropdown-arrow ${filterDropboxOpen ? 'sort-open' : ''}`} />
-            </button>
-            {/* 정렬 드랍다운 */}
-            <ul className={`sort-dropdown ${filterDropboxOpen ? 'open' : ''}`}>
-              {sortOptions.map((option) => {
-                const isActive = sortBtnValue === option.label;
-                return (
-                  <li key={option.value}
-                    className={`sort-dropdown-item ${isActive ? 'active' : ''}`}
-                    onClick={() => handleSortChange(option.label)}
-                  >
-                    {option.label}
-                    {isActive &&
-                      <span className="check-mark">
-                        <Check size={13} />
-                      </span>
-                    }
-                  </li>
-                );
-              })}
-            </ul>
+          <p className='list-title'>{selectedDate === today ? '오늘의 예약' : `${dayjs(selectedDate).format('MM/DD')}일 예약`}</p>
+          <div className='list-filter-container'>
+            {/* 날짜 선택 */}
+            <div className='list-date-container'>
+              <input type="date"
+                className='list-date-input'
+                value={selectedDate}
+                onChange={handleDateChange}
+              />
+            </div>
+
+            {/* 정렬 선택 */}
+            <div className='sort-dropdown-container' ref={filterRef}>
+              <button type='button'
+                className={`sort-btn ${filterDropboxOpen ? 'sort-open' : ''}`}
+                onClick={() => setFilterDropboxOpen(!filterDropboxOpen)}
+                >
+                {sortBtnValue}
+                <ChevronDown size={15} className={`sort-dropdown-arrow ${filterDropboxOpen ? 'sort-open' : ''}`} />
+              </button>
+              {/* 정렬 드랍다운 */}
+              <ul className={`sort-dropdown ${filterDropboxOpen ? 'open' : ''}`}>
+                {sortOptions.map((option) => {
+                  const isActive = sortBtnValue === option.label;
+                  return (
+                    <li key={option.value}
+                      className={`sort-dropdown-item ${isActive ? 'active' : ''}`}
+                      onClick={() => handleSortChange(option.label)}
+                    >
+                      {option.label}
+                      {isActive &&
+                        <span className="check-mark">
+                          <Check size={13} />
+                        </span>
+                      }
+                    </li>
+                  );
+                })}
+              </ul>
+            </div>
           </div>
         </div>
 
