@@ -433,3 +433,57 @@
   background-color: var(--bottari-blue);
   white-space: pre-wrap;
 }
+
+/* --- Skeleton Animation --- */
+.skeleton-item {
+  background: linear-gradient(90deg, #f2f2f2 25%, #e6e6e6 50%, #f2f2f2 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite linear;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* --- Skeleton Sizes --- */
+.skeleton-card {
+  border-color: #eee !important; /* 로딩 중엔 테두리를 연하게 */
+  pointer-events: none; /* 클릭 방지 */
+  background-color: #fafafa;
+}
+
+.skeleton-btn {
+  width: 80px;
+  height: 28px;
+  border-radius: 20px;
+  position: absolute;
+  right: 15px;
+}
+.skeleton-label {
+  width: 58px;
+  height: 22px;
+  border-radius: 20px;
+}
+.skeleton-text-long {
+  width: 160px;
+  height: 20px;
+}
+.skeleton-text-mid {
+  width: 120px;
+  height: 20px;
+}
+.skeleton-text-short {
+  width: 80px;
+  height: 20px;
+}
+.skeleton-time {
+  width: 45px;
+  height: 18px;
+}
+.skeleton-circle {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+}
