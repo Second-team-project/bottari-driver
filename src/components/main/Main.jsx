@@ -9,6 +9,7 @@ import { toast } from 'sonner';
 import TransportStatusConfirmModal from './modals/TransportStatusConfirmModal.jsx';
 import { statusThunk, toggleThunk } from '../../store/thunks/attendanceThunk.js';
 import { assignedThunk, updateStateThunk } from '../../store/thunks/deliveriesThunk.js';
+import SkeletonCard from './skeletons/SkeletonCard.jsx';
 // 위치 저장용 커스텀 훅
 import useLocationTracker from '../../hooks/useLocationTracker.js';
 
@@ -16,15 +17,16 @@ export default function Main() {
   const dispatch = useDispatch();
 
   const filterRef = useRef(null);
+  const loadingStartTime = useRef(null);
 
   // 오늘 날짜 포멧
   const today = dayjs().format('YYYY-MM-DD');
 
 
   // 기사 개인정보, 현재 근무 상태
-  const { driver, isAttendanceState, error } = useSelector(state => state.auth);
+  const { driver, isAttendanceState} = useSelector(state => state.auth);
   // 예약 정보
-  const { list, monthPerformance, todayPerformance } = useSelector(state => state.deliveries);
+  const { list, monthPerformance, todayPerformance, loading } = useSelector(state => state.deliveries);
 
   // 개인정보 수정 모달
   const [editProfileOpen, setEditProfileOpen] = useState(false); // 모달 표시 여부
@@ -39,6 +41,9 @@ export default function Main() {
   // 정렬기준 선택 드랍박스
   const [sortBtnValue, setSortBtnValue] = useState('전체'); // 정렬 기준 버튼 value
   const [filterDropboxOpen, setFilterDropboxOpen] = useState(false); // 드랍 박스 on/off
+
+  // 스켈레톤 표시 여부
+  const [showSkeleton, setShowSkeleton] = useState(false);
 
   // 아코디언 상태 관리 (열려있는 카드의 ID 저장)
   const [expandedId, setExpandedId] = useState(null);
@@ -118,6 +123,47 @@ export default function Main() {
     setSortBtnValue(value);
     setFilterDropboxOpen(false);
   }
+
+
+  // loading 상태에 따른 스켈레톤 노출 제어
+  useEffect(() => {
+    let delayTimer;
+    let minDisplayTimer;
+
+    if (loading) {
+      // 로딩 시작 시점 기록
+      loadingStartTime.current = Date.now();
+      
+      // 200ms 지연 후 스켈레톤 표시
+      delayTimer = setTimeout(() => {
+        setShowSkeleton(true);
+      }, 200);
+    } else {
+      // 로딩이 끝났을 때의 경과 시간 계산
+      const elapsedTime = loadingStartTime.current 
+        ? Date.now() - loadingStartTime.current 
+        : 0;
+      
+      const minDisplayTime = 300; 
+
+      if (showSkeleton) {
+        // 이미 스켈레톤이 떴다면 남은 시간만큼 더 보여줌
+        const remainingTime = Math.max(0, minDisplayTime - elapsedTime);
+        minDisplayTimer = setTimeout(() => {
+          setShowSkeleton(false);
+        }, remainingTime);
+      } else {
+        // 아직 안 떴다면 타이머 취소하고 바로 종료
+        clearTimeout(delayTimer);
+        setShowSkeleton(false);
+      }
+    }
+
+    return () => {
+      clearTimeout(delayTimer);
+      clearTimeout(minDisplayTimer);
+    };
+  }, [loading]);
   
 
   // 배송 상태 변경 버튼 클릭
@@ -366,92 +412,102 @@ export default function Main() {
         </div>
 
         {/* 배송 예약 리스트 */}
-        <div className='list-container'>
-          {sortedList.length > 0 ?
-            (sortedList.map((item) => {
-              const isExpanded = expandedId === item.id;
-              const currentState = stateMapping[item.deliveryState] || stateMapping.RESERVED;
-
-              return (
-                // 상단 기본 정보 영역 (클릭 시 아코디언 토글)
-                <div key={item.id} className="list-card" onClick={() => toggleAccordion(item.id)}>
-                  <div className="card-header-row">
-                    <button type='button'
-                      className={`reservation-state-btn ${currentState.className}`}
-                      onClick={(e) => handlereservationStateChange(e, item)}
-                    >
-                      {currentState.label}
-                    </button>
-                  </div>
-
-                  <div className='reservation-flow'>
-                    {/* 출발지 */}
-                    <div className='flex-between'>
-                      <div className='reservation-place'>
-                        <p className='reservation-label'>출발지</p>
-                        <p className='addr-text'>{item.startAddr}</p>
-                      </div>
-                      <p className='reservation-time'>{item.pickupTime}</p>
-                    </div>
-
-                    {/* 도착지 */}
-                    <div className='flex-between'>
-                      <div className='reservation-place'>
-                        <p className='reservation-label'>도착지</p>
-                        <p className='addr-text'>{item.endAddr}</p>
-                      </div>
-                    </div>
-
-                      {/* 짐 목록 (여러 개일 경우 줄바꿈) */}
-                      <div className='flex-between items-start'>
-                        <p className='detail-label'>짐</p>
-                        <div className='luggage-list'>
-                          {item.luggageList && item.luggageList.length > 0 ? (
-                            item.luggageList.map((lugText, idx) => (
-                              <p key={idx} className="luggage-item">{lugText}</p>
-                            ))
-                          ) : (
-                            <p className="luggage-item">짐 정보 없음</p>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <div className="accordion-arrow-row">
-                      {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
-                    </div>
-
-                  {/* 아코디언 상세 정보 영역 (예약자 성함, 전화번호, 요청사항) */}
-                  {isExpanded && (
-                    <div className='accordion-detail'>
-                      <div className='detail-divider'></div>
-                      <div className='detail-content'>
-                        <div className='flex-between'>
-                          <p className='detail-label'>예약자</p>
-                          <p>{item.userName}</p>
-                        </div>
-                        <div className='flex-between'>
-                          <p className='detail-label'>전화번호</p>
-                          <p>{formatPhone(item.userPhone)}</p>
-                        </div>
-                        <div className='flex-between label-top'>
-                          <p className='detail-label'>요청사항</p>
-                          <p className='detail-value'>{item.request || '요청사항이 없습니다.'}</p>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              );
-            })
-          ) : (
-            <div className='list-none-container'>
-              <p>
-                현재 배정된 예약 건이 없습니다.
-              </p>
+        {
+          showSkeleton ? (
+            <div>
+              <SkeletonCard />
+              <SkeletonCard />
+              <SkeletonCard />
             </div>
-          )}
-        </div>
+          ) : (
+            <div className='list-container'>
+              {sortedList.length > 0 ?
+                (sortedList.map((item) => {
+                  const isExpanded = expandedId === item.id;
+                  const currentState = stateMapping[item.deliveryState] || stateMapping.RESERVED;
+
+                  return (
+                    // 상단 기본 정보 영역 (클릭 시 아코디언 토글)
+                    <div key={item.id} className="list-card" onClick={() => toggleAccordion(item.id)}>
+                      <div className="card-header-row">
+                        <button type='button'
+                          className={`reservation-state-btn ${currentState.className}`}
+                          onClick={(e) => handlereservationStateChange(e, item)}
+                        >
+                          {currentState.label}
+                        </button>
+                      </div>
+
+                      <div className='reservation-flow'>
+                        {/* 출발지 */}
+                        <div className='flex-between'>
+                          <div className='reservation-place'>
+                            <p className='reservation-label'>출발지</p>
+                            <p className='addr-text'>{item.startAddr}</p>
+                          </div>
+                          <p className='reservation-time'>{item.pickupTime}</p>
+                        </div>
+
+                        {/* 도착지 */}
+                        <div className='flex-between'>
+                          <div className='reservation-place'>
+                            <p className='reservation-label'>도착지</p>
+                            <p className='addr-text'>{item.endAddr}</p>
+                          </div>
+                        </div>
+
+                          {/* 짐 목록 (여러 개일 경우 줄바꿈) */}
+                          <div className='flex-between items-start'>
+                            <p className='detail-label'>짐</p>
+                            <div className='luggage-list'>
+                              {item.luggageList && item.luggageList.length > 0 ? (
+                                item.luggageList.map((lugText, idx) => (
+                                  <p key={idx} className="luggage-item">{lugText}</p>
+                                ))
+                              ) : (
+                                <p className="luggage-item">짐 정보 없음</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="accordion-arrow-row">
+                          {isExpanded ? <ChevronUp size={20} /> : <ChevronDown size={20} />}
+                        </div>
+
+                      {/* 아코디언 상세 정보 영역 (예약자 성함, 전화번호, 요청사항) */}
+                      {isExpanded && (
+                        <div className='accordion-detail'>
+                          <div className='detail-divider'></div>
+                          <div className='detail-content'>
+                            <div className='flex-between'>
+                              <p className='detail-label'>예약자</p>
+                              <p>{item.userName}</p>
+                            </div>
+                            <div className='flex-between'>
+                              <p className='detail-label'>전화번호</p>
+                              <p>{formatPhone(item.userPhone)}</p>
+                            </div>
+                            <div className='flex-between label-top'>
+                              <p className='detail-label'>요청사항</p>
+                              <p className='detail-value'>{item.request || '요청사항이 없습니다.'}</p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <div className='list-none-container'>
+                  <p>
+                    현재 배정된 예약 건이 없습니다.
+                  </p>
+                </div>
+              )}
+            </div>
+          )
+        }
 
         {/* 위로 올라가는 버튼 */}
         {
