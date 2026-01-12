@@ -38,6 +38,7 @@
   border: 1px solid #fff;
   color: #fff;
   background: none;
+  cursor: pointer;
 }
 
 
@@ -261,6 +262,7 @@
   border-radius: 20px;
   background: none;
   font-weight: 600;
+  cursor: pointer;
 }
 .btn-blue {
   color: var(--bottari-blue);
@@ -410,7 +412,7 @@
   border: none;
   border-radius: 50%;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 7px 0 rgba(0, 0, 0, 0.2);
   -webkit-tap-highlight-color: transparent;
 }
 
@@ -421,6 +423,7 @@
 /* 푸터 */
 .driver-footer-container {
   width: 100%;
+  max-width: 1024px;
   padding: 17px;
   position: fixed;
   bottom: 0;
