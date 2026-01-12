@@ -465,7 +465,7 @@ export default function Main() {
                                   <p key={idx} className="luggage-item">{lugText}</p>
                                 ))
                               ) : (
-                                <p className="luggage-item">짐 정보 없음</p>
+                                <p className="luggage-item">짐 정보가 존재하지 않습니다.</p>
                               )}
                             </div>
                           </div>
@@ -490,7 +490,7 @@ export default function Main() {
                             </div>
                             <div className='flex-between label-top'>
                               <p className='detail-label'>요청사항</p>
-                              <p className='detail-value'>{item.request || '요청사항이 없습니다.'}</p>
+                              <p className='detail-value'>{item.request || '요청사항 없음'}</p>
                             </div>
                           </div>
                         </div>

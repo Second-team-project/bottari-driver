@@ -31,7 +31,7 @@
 
 
 /* 폰트 일괄 '페이퍼로지'폰트 적용 */
-h1, h2, h3, h4, h5, h6, p, span {
+h1, h2, h3, h4, h5, h6, p, span, input {
   font-family: 'Paperozi', sans-serif;
 }
 
