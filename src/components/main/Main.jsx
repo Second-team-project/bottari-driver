@@ -218,36 +218,38 @@ export default function Main() {
 
     const isLookingAtToday = selectedDate === today;
 
-    // 완료 필터링
+    // 1. 필터링 로직
     const filteredList = list.filter(item => {
-      if(sortBtnValue === '픽업 전' || sortBtnValue === 'RESERVED') {
-        return item.deliveryState === 'RESERVED';
-      }
-      if (sortBtnValue === '픽업 중' || sortBtnValue === 'PICKING_UP') {
-        return item.deliveryState === 'PICKING_UP';
-      }
-      if (sortBtnValue === '운송 중' || sortBtnValue === 'IN_PROGRESS') {
-        return item.deliveryState === 'IN_PROGRESS';
-      }
-      if (sortBtnValue === '완료' || sortBtnValue === 'COMPLETED') {
-        return item.deliveryState === 'COMPLETED';
+      // [Case 1] 드롭다운 필터가 특정 상태(픽업 전, 완료 등)를 가리킬 때 -> 해당 상태만 필터링
+      if (sortBtnValue !== '전체') {
+        const selectedOption = sortOptions.find(opt => opt.label === sortBtnValue);
+        return item.deliveryState === selectedOption?.value;
       }
 
+      // [Case 2] 드롭다운 필터가 '전체'일 때
       if (isLookingAtToday) {
-        // 오늘 날짜라면: 아직 끝나지 않은 건들만 보여줌 (완료 제외)
+        // 오늘 날짜라면: '완료'된 건은 제외하고 보여줌
         return item.deliveryState !== 'COMPLETED';
       } else {
-        // 과거 또는 미래 날짜라면: 완료된 건을 포함하여 모두 보여줌
+        // 오늘이 아닌 날짜(미래/과거)라면: '완료' 포함 모든 상태를 다 보여줌
         return true;
       }
     });
     
+    // 2. 정렬 로직 (반드시 필터링 된 결과 뒤에 chaining 하거나 새로 할당)
+    // 순서: RESERVED(픽업전) -> PICKING_UP(픽업중) -> IN_PROGRESS(운송중) -> COMPLETED(완료)
+    const priority = ['RESERVED', 'PICKING_UP', 'IN_PROGRESS', 'COMPLETED'];
+
     return [...filteredList].sort((a, b) => {
-      const priority = ['RESERVED', 'PICKING_UP', 'IN_PROGRESS', 'COMPLETED'];
       const indexA = priority.indexOf(a.deliveryState);
       const indexB = priority.indexOf(b.deliveryState);
 
-      return (indexA === -1 ? 999 : indexA) - (indexB === -1 ? 999 : indexB);
+      // 인덱스 값을 비교하여 정렬 (작은 숫자가 위로)
+      // 만약 정의되지 않은 상태가 있다면 맨 뒤로 보냄
+      const sortA = indexA === -1 ? 999 : indexA;
+      const sortB = indexB === -1 ? 999 : indexB;
+
+      return sortA - sortB;
     });
   };
 
@@ -414,7 +416,7 @@ export default function Main() {
         {/* 배송 예약 리스트 */}
         {
           showSkeleton ? (
-            <div>
+            <div className='skeleton-container'>
               <SkeletonCard />
               <SkeletonCard />
               <SkeletonCard />

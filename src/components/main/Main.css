@@ -162,7 +162,7 @@
   font-size: 19px;
   font-weight: 500;
 }
-.list-container {
+.list-container, .skeleton-container {
   display: flex;
   flex-direction: column;
   gap: 7px;
