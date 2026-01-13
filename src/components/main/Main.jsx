@@ -425,9 +425,12 @@ export default function Main() {
             <div className='list-container'>
               {sortedList.length > 0 ?
                 (sortedList.map((item) => {
-                  const isExpanded = expandedId === item.id;
-                  const currentState = stateMapping[item.deliveryState] || '';
+                  const currentState = stateMapping[item.deliveryState];
 
+                  if (!currentState) return null;
+                  
+                  const isExpanded = expandedId === item.id;
+                  
                   return (
                     // 상단 기본 정보 영역 (클릭 시 아코디언 토글)
                     <div key={item.id} className="list-card" onClick={() => toggleAccordion(item.id)}>
