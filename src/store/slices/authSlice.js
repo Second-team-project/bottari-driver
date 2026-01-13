@@ -74,6 +74,13 @@ const slice = createSlice({
       })
 
       .addMatcher(
+        (action) => action.type.endsWith('/fulfilled'),
+        (state) => {
+          state.loading = false;
+          state.error = null;
+        }
+      )
+      .addMatcher(
         (action) => action.type.endsWith('/pending'),
         (state) => {
           state.loading = true;
