@@ -16,7 +16,7 @@ export function injectStoreInAxios(_store) {
 
 // axios 인스턴스 생성
 const axiosInstance = axios.create({
-  baseURL: '', // 기본 URL (axios 호출 시, 가장 앞에 자동으로 연결하여 동작)
+  baseURL: import.meta.env.VITE_BASE_URL, // 기본 URL (axios 호출 시, 가장 앞에 자동으로 연결하여 동작)
   headers: {
     'Content-Type': 'application/json',
   },
