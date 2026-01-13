@@ -426,7 +426,7 @@ export default function Main() {
               {sortedList.length > 0 ?
                 (sortedList.map((item) => {
                   const isExpanded = expandedId === item.id;
-                  const currentState = stateMapping[item.deliveryState] || stateMapping.RESERVED;
+                  const currentState = stateMapping[item.deliveryState] || '';
 
                   return (
                     // 상단 기본 정보 영역 (클릭 시 아코디언 토글)
