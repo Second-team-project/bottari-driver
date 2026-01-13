@@ -39,6 +39,8 @@ const deliverySlice = createSlice({
         state.loading = false;
       })
       .addCase(logoutThunk.fulfilled, (state) => {
+        state.loading = false;
+        
         return initialState;
       })
 

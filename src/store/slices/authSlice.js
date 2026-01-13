@@ -3,7 +3,6 @@ import { loginThunk, logoutThunk, reissueThunk } from '../thunks/authThunk.js';
 import { profileThunk } from '../thunks/profileThunk.js';
 import { statusThunk, toggleThunk } from '../thunks/attendanceThunk.js';
 import axiosInstance from '../../api/axiosInstance.js';
-import { clearDeliveryData } from './deliveriesSlice.js';
 
 const initialState = {
   accessToken: null,
@@ -25,12 +24,16 @@ const slice = createSlice({
     builder
       // 1. 로그인 및 토큰 재발급
       .addCase(loginThunk.fulfilled, (state, action) => {
+        state.loading = false;
+
         const { accessToken, driver } = action.payload.data;
         state.accessToken = accessToken;
         state.driver = driver;
         state.isLoggedIn = true;
       })
       .addCase(reissueThunk.fulfilled, (state, action) => {
+        state.loading = false;
+
         const { accessToken, driver } = action.payload.data;
         state.accessToken = accessToken;
         state.driver = driver;
@@ -38,6 +41,8 @@ const slice = createSlice({
       })
       // 2. 개인정보 수정 (프로필 업데이트)
       .addCase(profileThunk.fulfilled, (state, action) => {
+        state.loading = false;
+
         const { driver, accessToken } = action.payload.data;
     
         if (driver) state.driver = driver;
@@ -51,14 +56,20 @@ const slice = createSlice({
       })
       // 3. 출퇴근 상태 관리
       .addCase(statusThunk.fulfilled, (state, action) => {
+        state.loading = false;
+
         // 서버 응답의 state가 CLOCKED_IN 이면 true
         state.isAttendanceState = action.payload.data.state === 'CLOCKED_IN';
       })
       .addCase(toggleThunk.fulfilled, (state, action) => {
+        state.loading = false;
+
         // 출퇴근 토글 성공 시 상태 반영
         state.isAttendanceState = action.payload.data.state === 'CLOCKED_IN';
       })
       .addCase(logoutThunk.fulfilled, (state) => {
+        state.loading = false;
+
         return initialState;
       })
 
