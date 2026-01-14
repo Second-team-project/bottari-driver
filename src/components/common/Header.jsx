@@ -2,8 +2,6 @@ import './Header.css';
 import BottariLogo2 from '../logo/BottariLogo2.jsx';
 import { LogOut } from 'lucide-react';
 import { useDispatch } from 'react-redux';
-import { clearAuth } from '../../store/slices/authSlice.js';
-import { clearDeliveryData } from '../../store/slices/deliveriesSlice.js';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { logoutThunk } from '../../store/thunks/authThunk.js';
