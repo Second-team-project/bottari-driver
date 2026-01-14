@@ -300,7 +300,6 @@ export default function Main() {
     };
   }, [])
   
-  console.log(sortedList)
   return (
     <>
      {/* 기사 개인정보 */}
