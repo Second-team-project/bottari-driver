@@ -219,7 +219,10 @@ export default function Main() {
     const isLookingAtToday = selectedDate === today;
 
     // 1. 필터링 로직
-    const filteredList = list.filter(item => {
+    return list.filter(item => {
+      // 상태 맵핑에 없는 데이터는 아예 제거 (데이터 없음 문구가 뜨게 함)
+      if (!stateMapping[item.deliveryState]) return false;
+
       // [Case 1] 드롭다운 필터가 특정 상태(픽업 전, 완료 등)일 때 -> 해당 상태만 필터링
       if (sortBtnValue !== '전체') {
         const selectedOption = sortOptions.find(opt => opt.label === sortBtnValue);
@@ -234,12 +237,10 @@ export default function Main() {
       
       // 오늘이 아닌 날짜(미래/과거)라면: 모든 상태('완료' 포함)를 다 보여줌
       return true;
-    });
-    
-    // 2. 정렬 로직
-    const priority = ['RESERVED', 'PICKING_UP', 'IN_PROGRESS', 'COMPLETED'];
+    })
+    .sort((a, b) => {
+      const priority = ['RESERVED', 'PICKING_UP', 'IN_PROGRESS', 'COMPLETED'];
 
-    return [...filteredList].sort((a, b) => {
       const indexA = priority.indexOf(a.deliveryState);
       const indexB = priority.indexOf(b.deliveryState);
 
