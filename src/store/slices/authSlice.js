@@ -70,7 +70,7 @@ const slice = createSlice({
       .addCase(logoutThunk.fulfilled, (state) => {
         state.loading = false;
 
-        return initialState;
+        Object.assign(state, initialState);
       })
 
       .addMatcher(
