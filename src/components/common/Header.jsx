@@ -35,6 +35,7 @@ export default function Header() {
       navigate('/login', { replace: true });
       toast.success("로그아웃 되었습니다.");
     } catch (error) {
+      console.log(error);
       toast.error(error.massege);
     }
   }
