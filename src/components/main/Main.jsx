@@ -252,7 +252,7 @@ export default function Main() {
 
   // 정렬된 리스트를 변수에 할당
   const sortedList = getSortedList();
-
+  
   // 전화번호 포멧
   const formatPhone = (val) => {
     if (!val) return "";
@@ -261,14 +261,14 @@ export default function Main() {
     // 010-1234-5678 또는 010-123-4567 대응
     return s.replace(/(\d{3})(\d{3,4})(\d{4})/, "$1-$2-$3");
   };
-
+  
   function scrollToTop() {
     window.scrollTo({
       top: 0,
       behavior: 'smooth',
     });
   };
-
+  
   useEffect(() => {
     dispatch(statusThunk());
     dispatch(assignedThunk());
@@ -282,7 +282,7 @@ export default function Main() {
       }
     }
     document.addEventListener("mousedown", handleSearchClickOutside);
-
+    
     const handleShowButton = () => {
       if (window.scrollY > 250) { // 300px 이상 스크롤 되면 버튼 보임
         setShowTopBtn(true);
@@ -290,7 +290,7 @@ export default function Main() {
         setShowTopBtn(false);
       }
     };
-
+    
     window.addEventListener("scroll", handleShowButton);
     
     return () => {
@@ -299,6 +299,7 @@ export default function Main() {
     };
   }, [])
   
+  console.log(sortedList)
   return (
     <>
      {/* 기사 개인정보 */}
