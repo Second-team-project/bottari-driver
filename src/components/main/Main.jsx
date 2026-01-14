@@ -220,7 +220,7 @@ export default function Main() {
 
     // 1. 필터링 로직
     const filteredList = list.filter(item => {
-      // [Case 1] 드롭다운 필터가 특정 상태(픽업 전, 완료 등)를 가리킬 때 -> 해당 상태만 필터링
+      // [Case 1] 드롭다운 필터가 특정 상태(픽업 전, 완료 등)일 때 -> 해당 상태만 필터링
       if (sortBtnValue !== '전체') {
         const selectedOption = sortOptions.find(opt => opt.label === sortBtnValue);
         return item.deliveryState === selectedOption?.value;
@@ -228,24 +228,21 @@ export default function Main() {
 
       // [Case 2] 드롭다운 필터가 '전체'일 때
       if (isLookingAtToday) {
-        // 오늘 날짜라면: '완료'된 건은 제외하고 보여줌
+        // 오늘 날짜라면: '완료'된 건은 제외하고 보여줌 (보통 오늘 할 일만 보기 위함)
         return item.deliveryState !== 'COMPLETED';
-      } else {
-        // 오늘이 아닌 날짜(미래/과거)라면: '완료' 포함 모든 상태를 다 보여줌
-        return true;
-      }
+      } 
+      
+      // 오늘이 아닌 날짜(미래/과거)라면: 모든 상태('완료' 포함)를 다 보여줌
+      return true;
     });
     
-    // 2. 정렬 로직 (반드시 필터링 된 결과 뒤에 chaining 하거나 새로 할당)
-    // 순서: RESERVED(픽업전) -> PICKING_UP(픽업중) -> IN_PROGRESS(운송중) -> COMPLETED(완료)
+    // 2. 정렬 로직
     const priority = ['RESERVED', 'PICKING_UP', 'IN_PROGRESS', 'COMPLETED'];
 
     return [...filteredList].sort((a, b) => {
       const indexA = priority.indexOf(a.deliveryState);
       const indexB = priority.indexOf(b.deliveryState);
 
-      // 인덱스 값을 비교하여 정렬 (작은 숫자가 위로)
-      // 만약 정의되지 않은 상태가 있다면 맨 뒤로 보냄
       const sortA = indexA === -1 ? 999 : indexA;
       const sortB = indexB === -1 ? 999 : indexB;
 
